@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Friction OS — Task Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   FRICTION OS — TASK BOARD
+   Theme: Friction Warm — editorial, tactile, purposefully distinct
+   ─────────────────────────────────────────────────────────
+   Philosophy: Friction = contact, heat, texture. The palette
+   reflects that — warm parchment base, deep terracotta accent,
+   soft 3D depth through shadow rather than glow. This is the
+   kind of UI a branding studio would hand a founder, not a
+   template someone toggled dark mode on.
+   ─────────────────────────────────────────────────────────
+   Palette:
+     bg-base      #F7F4F0   (warm parchment)
+     bg-surface   #FFFFFF   (card white)
+     bg-sidebar   #EDE9E4   (warm taupe)
+     bg-hover     #F0EBE5   (hover warm tint)
+     accent       #C4522A   (deep terracotta — friction heat)
+     accent-soft  #E07C56   (copper glow)
+     accent-mute  rgba(196,82,42,0.08)
+     text-1       #1C1816   (warm near-black)
+     text-2       #7A7168   (warm mid-grey)
+     text-3       #B0A89F   (warm muted)
+     shadow       rgba(60,30,10,0.07)
+   ═══════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base:     #F7F4F0;
+  --bg-surface:  #FFFFFF;
+  --bg-sidebar:  #EDE9E4;
+  --bg-hover:    #F0EBE5;
+  --bg-surface2: #FAF8F5;
+  --accent:      #C4522A;
+  --accent-soft: #E07C56;
+  --accent-glow: rgba(196,82,42,0.12);
+  --accent-mute: rgba(196,82,42,0.08);
+  --text-1:      #1C1816;
+  --text-2:      #7A7168;
+  --text-3:      #B0A89F;
+  --border:      rgba(60,30,10,0.08);
+  --border-mid:  rgba(60,30,10,0.14);
+  --shadow-sm:   0 1px 3px rgba(60,30,10,0.07), 0 1px 2px rgba(60,30,10,0.05);
+  --shadow-md:   0 4px 16px rgba(60,30,10,0.08), 0 1px 4px rgba(60,30,10,0.06);
+  --shadow-lg:   0 12px 40px rgba(60,30,10,0.12), 0 2px 8px rgba(60,30,10,0.08);
+  /* Status colours — adjusted for light bg readability */
+  --red:    #C92B2B;    --red-bg:    rgba(201,43,43,0.08);
+  --amber:  #B45309;   --amber-bg:  rgba(180,83,9,0.08);
+  --blue:   #1D4ED8;   --blue-bg:   rgba(29,78,216,0.08);
+  --green:  #15803D;   --green-bg:  rgba(21,128,61,0.08);
+  --violet: #7C3AED;   --violet-bg: rgba(124,58,237,0.08);
+  --m-color: #C92B2B;
+  --j-color: #C4522A;
+  --b-color: #15803D;
+  --font: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+}
+
+html { font-size: 14px; }
+body {
+  font-family: var(--font);
+  background: var(--bg-base);
+  color: var(--text-1);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(196,82,42,0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(196,82,42,0.35); }
+
+/* ─────────────────────────────────────────────────────────
+   TOPBAR
+   ───────────────────────────────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  height: 54px;
+  background: rgba(247,244,240,0.94);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(60,30,10,0.04);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 0;
+}
+.topbar-brand {
+  display: flex; align-items: center; gap: 11px;
+  margin-right: 32px;
+}
+.brand-logo {
+  width: 30px; height: 30px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: #fff;
+  font-family: var(--mono);
+  box-shadow: 0 2px 8px rgba(196,82,42,0.30);
+  letter-spacing: -0.03em;
+}
+.brand-name {
+  font-size: 13px; font-weight: 700; color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+.brand-sub {
+  font-size: 10px; color: var(--text-3);
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.topbar-nav {
+  display: flex; align-items: center; gap: 2px;
+  flex: 1;
+}
+.nav-item {
+  padding: 5px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  border: none; background: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.nav-item:hover { color: var(--text-1); background: var(--bg-hover); }
+.nav-item.active {
+  color: var(--accent);
+  background: var(--accent-mute);
+  font-weight: 600;
+}
+
+.topbar-right {
+  display: flex; align-items: center; gap: 10px;
+  margin-left: auto;
+}
+.day-badge {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--text-2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 4px 10px; border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.member-stack { display: flex; }
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid var(--bg-base);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.av-m { background: rgba(201,43,43,0.12); color: var(--red); }
+.av-j { background: rgba(196,82,42,0.12); color: var(--accent); }
+.av-b { background: rgba(21,128,61,0.12); color: var(--green); }
+
+/* ─────────────────────────────────────────────────────────
+   LAYOUT — sidebar + main
+   ───────────────────────────────────────────────────────── */
+.layout { display: flex; min-height: calc(100vh - 54px); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 224px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: 20px 14px;
+  display: flex; flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.sidebar-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.09em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  padding: 0 8px;
+  margin-top: 16px; margin-bottom: 4px;
+}
+.sidebar-label:first-child { margin-top: 0; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 10px; border-radius: var(--radius-sm);
+  cursor: pointer; border: none; background: none;
+  color: var(--text-2); font-size: 13px; font-weight: 500;
+  width: 100%; text-align: left;
+  transition: all 0.12s;
+}
+.sidebar-item:hover { background: rgba(60,30,10,0.06); color: var(--text-1); }
+.sidebar-item.active {
+  background: var(--bg-surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  border-left: 2px solid var(--accent);
+  padding-left: 8px;
+}
+.sidebar-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.sidebar-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px; color: var(--text-3);
+  background: rgba(60,30,10,0.07);
+  padding: 2px 7px; border-radius: 10px;
+}
+.sidebar-item.active .sidebar-count {
+  background: var(--accent-mute);
+  color: var(--accent);
+}
+
+/* ── MAIN CONTENT ── */
+.main { flex: 1; overflow-x: hidden; }
+
+/* ─────────────────────────────────────────────────────────
+   PAGE HEADER
+   ───────────────────────────────────────────────────────── */
+.page-header {
+  padding: 28px 30px 0;
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.page-title-block {}
+.page-title {
+  font-size: 24px; font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-1);
+}
+/* Terracotta underline accent instead of gradient */
+.page-title span {
+  position: relative;
+}
+.page-title span::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+.page-sub {
+  font-size: 12px; color: var(--text-2); margin-top: 4px;
+  font-family: var(--mono);
+}
+.header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ─────────────────────────────────────────────────────────
+   BUTTONS
+   ───────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-surface);
+  color: var(--text-2);
+  transition: all 0.12s; white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+.btn:hover {
+  border-color: rgba(60,30,10,0.20);
+  color: var(--text-1);
+  background: var(--bg-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(196,82,42,0.28);
+}
+.btn-primary:hover {
+  background: #B04423;
+  box-shadow: 0 4px 16px rgba(196,82,42,0.36);
+  transform: translateY(-1px);
+}
+.btn-icon { padding: 7px 9px; }
+
+/* ─────────────────────────────────────────────────────────
+   PIPELINE TRACK
+   ───────────────────────────────────────────────────────── */
+.pipeline-section { padding: 22px 30px; }
+.pipeline-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.pipeline-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.09em;
+  color: var(--text-3); text-transform: uppercase;
+}
+.pipeline-pct {
+  font-family: var(--mono); font-size: 11px; color: var(--accent);
+  font-weight: 500;
+}
+.pipeline-track {
+  display: flex; align-items: center; gap: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 5px 8px;
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+.pipe-step {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px; border-radius: 30px;
+  flex-shrink: 0;
+  transition: all 0.15s; cursor: default;
+}
+.pipe-step.done { background: rgba(21,128,61,0.07); }
+.pipe-step.active { background: var(--accent-mute); }
+.pipe-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.pipe-dot.done   { background: var(--green); }
+.pipe-dot.active { background: var(--accent); animation: pulse 2s infinite; }
+.pipe-dot.idle   { background: var(--text-3); }
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(196,82,42,0.30); }
+  50%     { box-shadow: 0 0 0 5px rgba(196,82,42,0); }
+}
+.pipe-name  { font-size: 11px; font-weight: 600; color: var(--text-2); }
+.pipe-step.done   .pipe-name { color: var(--green); }
+.pipe-step.active .pipe-name { color: var(--accent); }
+.pipe-frac  { font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+.pipe-step.active .pipe-frac { color: var(--accent-soft); }
+.pipe-arrow { color: var(--text-3); font-size: 11px; padding: 0 2px; flex-shrink: 0; }
+
+/* ─────────────────────────────────────────────────────────
+   STATS ROW
+   ───────────────────────────────────────────────────────── */
+.stats-row {
+  display: flex; gap: 10px;
+  padding: 0 30px 22px;
+  flex-wrap: wrap;
+}
+.stat-card {
+  flex: 1; min-width: 92px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.stat-num {
+  font-size: 22px; font-weight: 700;
+  font-family: var(--mono);
+  line-height: 1;
+}
+.stat-label { font-size: 11px; color: var(--text-2); }
+.stat-bar-wrap {
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  margin-top: 6px; overflow: hidden;
+}
+.stat-bar-fill { height: 100%; border-radius: 1px; transition: width 0.6s ease; }
+
+/* ─────────────────────────────────────────────────────────
+   TOOLBAR (filters + views)
+   ───────────────────────────────────────────────────────── */
+.toolbar {
+  display: flex; align-items: center;
+  padding: 0 30px 18px;
+  gap: 8px; flex-wrap: wrap;
+}
+.toolbar-left  { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.toolbar-right { display: flex; gap: 6px; align-items: center; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-surface); color: var(--text-2);
+  transition: all 0.12s; user-select: none;
+  box-shadow: var(--shadow-sm);
+}
+.chip:hover { border-color: var(--border-mid); color: var(--text-1); background: var(--bg-hover); }
+.chip.active {
+  background: var(--accent-mute);
+  border-color: rgba(196,82,42,0.25);
+  color: var(--accent);
+  font-weight: 600;
+}
+.chip-dot { width: 7px; height: 7px; border-radius: 50%; }
+.chip .av-sm {
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.view-toggle {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.view-btn {
+  padding: 5px 11px; font-size: 12px; cursor: pointer;
+  border: none; background: none; color: var(--text-3);
+  transition: all 0.1s;
+}
+.view-btn.active { background: var(--accent-mute); color: var(--accent); }
+.view-btn:hover:not(.active) { color: var(--text-1); background: var(--bg-hover); }
+
+.search-box {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-2); font-size: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.12s, border-color 0.12s;
+}
+.search-box:focus-within {
+  border-color: rgba(196,82,42,0.35);
+  box-shadow: 0 0 0 3px rgba(196,82,42,0.07), var(--shadow-sm);
+}
+.search-box svg { opacity: 0.35; }
+.search-input {
+  background: none; border: none; outline: none;
+  color: var(--text-1); font-size: 12px; width: 130px;
+  font-family: var(--font);
+}
+.search-input::placeholder { color: var(--text-3); }
+
+/* ─────────────────────────────────────────────────────────
+   BOARD — grouped phases
+   ───────────────────────────────────────────────────────── */
+.board-wrap { padding: 0 30px 48px; }
+
+.phase-group { margin-bottom: 8px; }
+.phase-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: var(--radius);
+  cursor: pointer; user-select: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  transition: all 0.12s;
+  margin-bottom: 1px;
+  box-shadow: var(--shadow-sm);
+}
+.phase-header:hover {
+  border-color: var(--border-mid);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.phase-chevron {
+  font-size: 10px; color: var(--text-3);
+  transition: transform 0.2s;
+  margin-right: 2px;
+}
+.phase-group.open .phase-chevron { transform: rotate(90deg); }
+.phase-color-bar {
+  width: 3px; height: 16px; border-radius: 2px; flex-shrink: 0;
+}
+.phase-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.phase-meta {
+  display: flex; gap: 8px; align-items: center;
+  margin-left: auto;
+}
+.phase-count {
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  background: var(--bg-base);
+  padding: 2px 8px; border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.phase-progress-mini {
+  width: 60px; height: 3px;
+  background: var(--border);
+  border-radius: 2px; overflow: hidden;
+}
+.phase-prog-fill { height: 100%; border-radius: 2px; }
+
+/* ── COLUMN HEADERS ── */
+.col-headers {
+  display: grid;
+  grid-template-columns: 2fr 100px 120px 110px 90px 80px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface2);
+}
+.col-head {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.07em;
+  color: var(--text-3); text-transform: uppercase;
+}
+
+/* ── TASK ROW ── */
+.task-rows { display: flex; flex-direction: column; }
+.task-row {
+  display: grid;
+  grid-template-columns: 2fr 100px 120px 110px 90px 80px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+.task-row:last-child { border-bottom: none; border-radius: 0 0 var(--radius) var(--radius); }
+.task-row:hover { background: #FDF9F6; }
+.task-row.done .task-name { text-decoration: line-through; color: var(--text-3); }
+
+/* Task name cell */
+.task-name-cell { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.task-check {
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 1.5px solid var(--border-mid);
+  background: transparent; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s;
+}
+.task-check:hover { border-color: var(--accent); background: var(--accent-mute); }
+.task-check.checked { background: var(--accent); border-color: var(--accent); }
+.task-check.checked::after { content: '✓'; color: #fff; font-size: 10px; font-weight: 700; }
+.task-name {
+  font-size: 13px; font-weight: 500; color: var(--text-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.task-note-inline {
+  font-size: 11px; color: var(--text-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Status chip */
+.status-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  width: fit-content;
+}
+.status-red   { background: var(--red-bg);   color: var(--red);   border: 1px solid rgba(201,43,43,0.16); }
+.status-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(180,83,9,0.16); }
+.status-blue  { background: var(--blue-bg);  color: var(--blue);  border: 1px solid rgba(29,78,216,0.16); }
+.status-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(21,128,61,0.16); }
+.sdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* Assignee cell */
+.assignee-cell { display: flex; align-items: center; gap: 7px; }
+.assignee-av {
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.av-m-sm { background: rgba(201,43,43,0.12); color: var(--red); }
+.av-j-sm { background: rgba(196,82,42,0.12); color: var(--accent); }
+.av-b-sm { background: rgba(21,128,61,0.12); color: var(--green); }
+.assignee-name { font-size: 12px; color: var(--text-2); }
+
+/* Due date */
+.due-cell { display: flex; flex-direction: column; gap: 2px; }
+.due-date { font-family: var(--mono); font-size: 11px; color: var(--text-2); }
+.due-tag {
+  font-size: 10px; font-family: var(--mono);
+  font-weight: 600; padding: 1px 6px; border-radius: 4px;
+  width: fit-content;
+}
+.due-overdue { background: var(--red-bg);   color: var(--red); }
+.due-soon    { background: var(--amber-bg); color: var(--amber); }
+.due-ok      { background: rgba(60,30,10,0.05); color: var(--text-3); }
+.due-done    { background: var(--green-bg); color: var(--green); }
+
+/* Phase stage */
+.stage-badge {
+  font-size: 10px; font-family: var(--mono); font-weight: 600;
+  padding: 3px 8px; border-radius: 4px;
+  background: var(--accent-mute); color: var(--accent);
+  border: 1px solid rgba(196,82,42,0.15);
+  width: fit-content;
+}
+
+/* Row actions */
+.row-actions {
+  display: flex; gap: 4px; align-items: center;
+  opacity: 0; transition: opacity 0.1s;
+}
+.task-row:hover .row-actions { opacity: 1; }
+.row-btn {
+  width: 22px; height: 22px; border-radius: 4px;
+  background: none; border: 1px solid var(--border);
+  color: var(--text-3); cursor: pointer; font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.1s;
+}
+.row-btn:hover { background: var(--bg-hover); color: var(--text-1); border-color: var(--border-mid); }
+.row-btn.del:hover { color: var(--red); border-color: rgba(201,43,43,0.25); background: var(--red-bg); }
+
+/* Add task row */
+.add-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--bg-surface);
+  border-top: 1px dashed var(--border);
+  cursor: pointer;
+  color: var(--text-3); font-size: 12px;
+  transition: all 0.1s;
+}
+.add-row:hover { color: var(--accent); background: var(--accent-mute); }
+.add-plus {
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 1.5px dashed currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   MODAL
+   ───────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(28,24,22,0.35);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 520px;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(60,30,10,0.04);
+  overflow: hidden;
+}
+.modal-header {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  background: var(--bg-surface2);
+}
+.modal-title { font-size: 16px; font-weight: 700; color: var(--text-1); }
+.modal-sub { font-size: 12px; color: var(--text-2); margin-top: 3px; }
+.modal-close {
+  width: 26px; height: 26px; border-radius: var(--radius-sm);
+  background: var(--bg-hover); border: 1px solid var(--border);
+  color: var(--text-2); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { color: var(--text-1); background: var(--border-mid); }
+.modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px; justify-content: flex-end;
+  background: var(--bg-surface2);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1/-1; }
+label {
+  font-size: 11px; font-weight: 700; color: var(--text-2);
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+input, textarea, select {
+  background: var(--bg-base);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px; color: var(--text-1);
+  font-size: 13px; font-family: var(--font);
+  outline: none; transition: border-color 0.12s, box-shadow 0.12s;
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(196,82,42,0.45);
+  box-shadow: 0 0 0 3px rgba(196,82,42,0.08);
+}
+textarea { min-height: 80px; resize: vertical; }
+select option { background: var(--bg-surface); }
+input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+/* auto-assign tag */
+.auto-assign-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 20px;
+  background: var(--accent-mute);
+  border: 1px solid rgba(196,82,42,0.2);
+  font-size: 11px; color: var(--accent);
+  font-weight: 600; width: fit-content;
+}
+
+/* ─────────────────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .col-headers, .task-row { grid-template-columns: 1fr 90px 90px; }
+  .col-headers .col-head:nth-child(n+4),
+  .task-row > *:nth-child(n+4) { display: none; }
+  .page-header    { padding: 18px 18px 0; }
+  .pipeline-section { padding: 14px 18px; }
+  .stats-row      { padding: 0 18px 14px; }
+  .toolbar        { padding: 0 18px 12px; }
+  .board-wrap     { padding: 0 18px 30px; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   TOAST
+   ───────────────────────────────────────────────────────── */
+#toast-container {
+  position: fixed; bottom: 24px; right: 24px; z-index: 300;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  padding: 10px 16px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+  animation: slideIn 0.2s ease;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-md);
+}
+.toast-ok   { color: var(--green); border-color: rgba(21,128,61,0.2); }
+.toast-err  { color: var(--red);   border-color: rgba(201,43,43,0.2); }
+.toast-info { color: var(--accent); border-color: rgba(196,82,42,0.2); }
+@keyframes slideIn {
+  from { opacity:0; transform: translateX(16px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+
+/* ─────────────────────────────────────────────────────────
+   DIVIDER for toolbar
+   ───────────────────────────────────────────────────────── */
+.toolbar-divider {
+  width: 1px; background: var(--border); margin: 0 4px;
+  align-self: stretch;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOPBAR ═══ -->
+<nav class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-logo">F/</div>
+    <div>
+      <div class="brand-name">Friction OS</div>
+      <div class="brand-sub">Internal · v1.0</div>
+    </div>
+  </div>
+  <div class="topbar-nav">
+    <button class="nav-item active">Task Board</button>
+    <button class="nav-item">Analytics</button>
+    <button class="nav-item">Clients</button>
+    <button class="nav-item">Docs</button>
+    <button class="nav-item">Backend</button>
+  </div>
+  <div class="topbar-right">
+    <div class="day-badge" id="top-day">Day 9 · Mon, 9 Jun 2026</div>
+    <div class="member-stack" style="display:flex;">
+      <div class="avatar av-m" title="M — CEO">M</div>
+      <div class="avatar av-j" title="J — CTO" style="margin-left:-5px;">J</div>
+      <div class="avatar av-b" title="B — CIO" style="margin-left:-5px;">B</div>
+    </div>
+    <button class="btn btn-primary" onclick="openAddModal()">+ Add Task</button>
+  </div>
+</nav>
+
+<!-- ═══ LAYOUT ═══ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Views</div>
+    <button class="sidebar-item active">
+      <span>⊞</span> All Tasks
+      <span class="sidebar-count" id="sb-all">31</span>
+    </button>
+    <button class="sidebar-item" onclick="sidebarFilter('M')">
+      <span class="sidebar-dot" style="background:var(--red)"></span> M — CEO/Ops
+      <span class="sidebar-count" id="sb-m">—</span>
+    </button>
+    <button class="sidebar-item" onclick="sidebarFilter('J')">
+      <span class="sidebar-dot" style="background:var(--accent)"></span> J — CTO/Tech
+      <span class="sidebar-count" id="sb-j">—</span>
+    </button>
+    <button class="sidebar-item" onclick="sidebarFilter('B')">
+      <span class="sidebar-dot" style="background:var(--green)"></span> B — CIO/Info
+      <span class="sidebar-count" id="sb-b">—</span>
+    </button>
+
+    <div class="sidebar-label">Priority</div>
+    <button class="sidebar-item" onclick="filterByPriority('red')">
+      <span class="sidebar-dot" style="background:var(--red)"></span> Do Now
+    </button>
+    <button class="sidebar-item" onclick="filterByPriority('amber')">
+      <span class="sidebar-dot" style="background:var(--amber)"></span> Delegate
+    </button>
+    <button class="sidebar-item" onclick="filterByPriority('blue')">
+      <span class="sidebar-dot" style="background:var(--blue)"></span> Schedule
+    </button>
+    <button class="sidebar-item" onclick="filterByPriority('green')">
+      <span class="sidebar-dot" style="background:var(--green)"></span> Do Last
+    </button>
+
+    <div class="sidebar-label">Stages</div>
+    <button class="sidebar-item" onclick="filterByStage('validate')"><span>🔬</span> Validate</button>
+    <button class="sidebar-item" onclick="filterByStage('form')"><span>🏢</span> Form Co.</button>
+    <button class="sidebar-item" onclick="filterByStage('mvp')"><span>🚀</span> Build MVP</button>
+    <button class="sidebar-item" onclick="filterByStage('comply')"><span>📋</span> Comply</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-title-block">
+        <div class="page-title"><span>Task Board</span></div>
+        <div class="page-sub" id="hdr-sub">Day 9 · Lean Startup · Started 1 Jun 2026</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" onclick="collapseAll()">⊟ Collapse all</button>
+        <button class="btn" onclick="expandAll()">⊞ Expand all</button>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="pipeline-section">
+      <div class="pipeline-header">
+        <div class="pipeline-title">Startup Pipeline</div>
+        <div class="pipeline-pct" id="pipe-overall">0% overall</div>
+      </div>
+      <div class="pipeline-track" id="pipeline-track">
+        <!-- built by JS -->
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row" id="stats-row">
+      <!-- built by JS -->
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="toolbar-left" id="filter-chips">
+        <div class="chip active" data-mf="ALL" onclick="setMemberFilter('ALL',this)">All members</div>
+        <div class="chip" data-mf="M" onclick="setMemberFilter('M',this)">
+          <div class="av-sm av-m-sm">M</div> M
+        </div>
+        <div class="chip" data-mf="J" onclick="setMemberFilter('J',this)">
+          <div class="av-sm av-j-sm">J</div> J
+        </div>
+        <div class="chip" data-mf="B" onclick="setMemberFilter('B',this)">
+          <div class="av-sm av-b-sm">B</div> B
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="chip" data-pf="red"   onclick="togglePriorityFilter('red',this)"><div class="chip-dot" style="background:var(--red)"></div>Do Now</div>
+        <div class="chip" data-pf="amber" onclick="togglePriorityFilter('amber',this)"><div class="chip-dot" style="background:var(--amber)"></div>Delegate</div>
+        <div class="chip" data-pf="blue"  onclick="togglePriorityFilter('blue',this)"><div class="chip-dot" style="background:var(--blue)"></div>Schedule</div>
+        <div class="chip" data-pf="green" onclick="togglePriorityFilter('green',this)"><div class="chip-dot" style="background:var(--green)"></div>Do Last</div>
+      </div>
+      <div class="toolbar-right">
+        <div class="search-box">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 1 0 13A6.5 6.5 0 0 1 6.5 0zm0 1.5a5 5 0 1 0 0 10A5 5 0 0 0 6.5 1.5zm4.97 9.53a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06l3.5-3.5z"/></svg>
+          <input class="search-input" placeholder="Search tasks…" oninput="searchTasks(this.value)" id="search-inp"/>
+        </div>
+        <div class="view-toggle">
+          <button class="view-btn active" title="Group view">≡</button>
+          <button class="view-btn" title="Compact">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOARD -->
+    <div class="board-wrap" id="board-wrap">
+      <!-- built by JS -->
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══ ADD TASK MODAL ═══ -->
+<div class="modal-overlay" id="add-modal" style="display:none;" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Add Task</div>
+        <div class="modal-sub">System auto-assigns by keyword · you can override</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group full">
+        <label>Task title *</label>
+        <input id="at-title" placeholder="e.g. Follow up invoice with client" oninput="previewAutoAssign()"/>
+      </div>
+      <div id="auto-assign-preview" style="display:none;">
+        <div class="auto-assign-badge">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zM8 2.5a5.5 5.5 0 1 0 0 11A5.5 5.5 0 0 0 8 2.5zM7.25 5h1.5v5.5h-1.5V5zM8 11.5a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5z"/></svg>
+          <span id="auto-assign-text">Auto-assign: J (CTO/Tech)</span>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Description</label>
+        <textarea id="at-note" placeholder="More detail helps auto-assign work better…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phase</label>
+          <input id="at-phase" placeholder="e.g. PRODUCT & TECH"/>
+        </div>
+        <div class="form-group">
+          <label>Due in (days)</label>
+          <input id="at-days" type="number" placeholder="7" min="1"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Override assignee</label>
+          <select id="at-assign">
+            <option value="">Auto-assign</option>
+            <option value="M">M — CEO / Operations</option>
+            <option value="J">J — CTO / Technology</option>
+            <option value="B">B — CIO / Information</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Override priority</label>
+          <select id="at-priority">
+            <option value="">Auto-prioritise</option>
+            <option value="red">🔴 Do Now</option>
+            <option value="amber">🟡 Delegate</option>
+            <option value="blue">🔵 Schedule</option>
+            <option value="green">🟢 Do Last</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNewTask()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   DATA — mirrors original dashboard structure
+   ══════════════════════════════════════════════ */
+const MEMBERS = {
+  M: { initial:'M', name:'M', role:'CEO / Operations', avClass:'av-m-sm' },
+  J: { initial:'J', name:'J', role:'CTO / Technology', avClass:'av-j-sm' },
+  B: { initial:'B', name:'B', role:'CIO / Information', avClass:'av-b-sm' },
+};
+
+const KEYWORDS = {
+  invoice:'M', revenue:'M', client:'M', sales:'M', tax:'M', ssm:'M',
+  grant:'M', quotation:'M', contract:'M', payment:'M',
+  deploy:'J', api:'J', code:'J', server:'J', bug:'J', pipeline:'J',
+  database:'J', ai:'J', cloud:'J', wifi:'J', security:'J',
+  data:'B', report:'B', analytics:'B', compliance:'B', document:'B',
+  records:'B', minutes:'B', gantt:'B', kpi:'B', pdpa:'B',
+};
+
+const START = new Date('2026-06-01');
+function dueDate(d){ const x=new Date(START); x.setDate(x.getDate()+d); return x.toISOString(); }
+function today(){ return new Date(); }
+function daysLeft(iso){ return Math.ceil((new Date(iso)-today())/86400000); }
+function fmtDate(iso){ return new Date(iso).toLocaleDateString('en-MY',{day:'numeric',month:'short'}); }
+function genId(){ return 't_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
+function isoNow(){ return new Date().toISOString(); }
+
+let TASKS = [
+  {id:'t1', phase:'NOW — Validate',title:'Define what the startup is about',note:'One sentence: who is the customer, what problem, what solution.',assignedTo:'M',priority:'red',dueDate:dueDate(3),stage:'validate',done:false},
+  {id:'t2', phase:'NOW — Validate',title:'Identify riskiest assumption',note:'What must be true for this to succeed?',assignedTo:'M',priority:'red',dueDate:dueDate(3),stage:'validate',done:false},
+  {id:'t3', phase:'NOW — Validate',title:'Design your MVP experiment',note:'Cheapest way to test the riskiest assumption.',assignedTo:'J',priority:'red',dueDate:dueDate(7),stage:'validate',done:false},
+  {id:'t4', phase:'NOW — Validate',title:'First client outreach',note:'Get in front of a real potential user before writing code.',assignedTo:'M',priority:'red',dueDate:dueDate(5),stage:'client',done:true},
+  {id:'t5', phase:'NOW — Validate',title:'MVP vertical niche decision',note:'Which segment do you serve first?',assignedTo:'M',priority:'red',dueDate:dueDate(5),stage:'validate',done:true},
+  {id:'t6', phase:'NOW — Validate',title:'Role assignment — all three founders',note:'Who owns product, sales, ops, tech, finance?',assignedTo:'M',priority:'red',dueDate:dueDate(3),stage:'form',done:true},
+  {id:'t7', phase:'COMPANY FORMATION',title:'Company name decision',note:'Check availability on SSM MyCoID portal.',assignedTo:'M',priority:'red',dueDate:dueDate(7),stage:'form',done:false},
+  {id:'t8', phase:'COMPANY FORMATION',title:'Shareholder percentage & SHA',note:'Decide equity split. Sign SHA before SSM registration.',assignedTo:'M',priority:'red',dueDate:dueDate(10),stage:'form',done:false},
+  {id:'t9', phase:'COMPANY FORMATION',title:'Sdn Bhd vs Enterprise — pick secretary',note:'Get 2–3 quotes. Sdn Bhd recommended.',assignedTo:'M',priority:'red',dueDate:dueDate(7),stage:'form',done:false},
+  {id:'t10',phase:'COMPANY FORMATION',title:'SSM registration',note:'Submit via MyCoID or secretary company.',assignedTo:'M',priority:'red',dueDate:dueDate(14),stage:'form',done:false},
+  {id:'t11',phase:'COMPANY FORMATION',title:'Capital raise decision',note:'RM1,000 minimum paid-up. Bootstrapped or grants?',assignedTo:'M',priority:'amber',dueDate:dueDate(10),stage:'form',done:false},
+  {id:'t12',phase:'COMPANY FORMATION',title:'Office listing — registered address',note:'Apartment can serve as registered address.',assignedTo:'M',priority:'amber',dueDate:dueDate(10),stage:'form',done:false},
+  {id:'t13',phase:'COMPANY FORMATION',title:'Rental unit — name under company for tax',note:'Confirm with tax agent after incorporation.',assignedTo:'M',priority:'amber',dueDate:dueDate(21),stage:'form',done:false},
+  {id:'t14',phase:'COMPANY FORMATION',title:'Team personal tax setup',note:'PCB / income tax for each founder.',assignedTo:'M',priority:'blue',dueDate:dueDate(30),stage:'form',done:false},
+  {id:'t15',phase:'COMPANY FORMATION',title:'E-invoice setup (LHDN MyInvois)',note:"Malaysia's e-invoicing mandate.",assignedTo:'M',priority:'blue',dueDate:dueDate(21),stage:'form',done:false},
+  {id:'t16',phase:'PRODUCT & TECH',title:'App discussion — tech stack & architecture',note:'Align before writing any code.',assignedTo:'J',priority:'red',dueDate:dueDate(7),stage:'mvp',done:true},
+  {id:'t17',phase:'PRODUCT & TECH',title:'MVP Gantt chart',note:'6–10 weeks max for first testable version.',assignedTo:'B',priority:'red',dueDate:dueDate(7),stage:'mvp',done:false},
+  {id:'t18',phase:'PRODUCT & TECH',title:'Beta Gantt chart',note:'Plan only after MVP feedback absorbed.',assignedTo:'B',priority:'blue',dueDate:dueDate(45),stage:'beta',done:false},
+  {id:'t19',phase:'PRODUCT & TECH',title:'CI/CD pipeline setup',note:'GitHub Actions for Python. Automate from first commit.',assignedTo:'J',priority:'blue',dueDate:dueDate(14),stage:'mvp',done:true},
+  {id:'t20',phase:'PRODUCT & TECH',title:'Office tools — standardise the stack',note:'One set of tools for all three founders.',assignedTo:'M',priority:'amber',dueDate:dueDate(7),stage:'form',done:false},
+  {id:'t21',phase:'PRODUCT & TECH',title:'Wifi setup at apartment office',note:'Fibre — Unifi or TIME. Redundancy for demos.',assignedTo:'J',priority:'amber',dueDate:dueDate(5),stage:'form',done:false},
+  {id:'t22',phase:'PRODUCT & TECH',title:'Company / idea / workflow stress test',note:'Pre-mortem: what kills this startup in 90 days?',assignedTo:'M',priority:'red',dueDate:dueDate(10),stage:'validate',done:false},
+  {id:'t23',phase:'COMPLIANCE & FUNDING',title:'Grant preparation (MDEC / Cradle / MRANTI)',note:'Need SSM cert + business plan + projections.',assignedTo:'M',priority:'blue',dueDate:dueDate(45),stage:'comply',done:false},
+  {id:'t24',phase:'COMPLIANCE & FUNDING',title:'Sovereign AI cloud registration',note:"Malaysia's national AI cloud.",assignedTo:'J',priority:'blue',dueDate:dueDate(30),stage:'comply',done:false},
+  {id:'t25',phase:'COMPLIANCE & FUNDING',title:'National Data Sharing Committee',note:'NDSC compliance if handling government data.',assignedTo:'J',priority:'blue',dueDate:dueDate(40),stage:'comply',done:false},
+  {id:'t26',phase:'COMPLIANCE & FUNDING',title:'AI Sandbox — NAIO use',note:"NAIO sandbox programme.",assignedTo:'J',priority:'blue',dueDate:dueDate(40),stage:'comply',done:false},
+  {id:'t27',phase:'COMPLIANCE & FUNDING',title:'MD registration status',note:'Formal MD appointment in company constitution.',assignedTo:'B',priority:'amber',dueDate:dueDate(14),stage:'form',done:false},
+  {id:'t28',phase:'COMPLIANCE & FUNDING',title:'Data Protection Officer — PDPA',note:'DPO under Malaysia PDPA 2010.',assignedTo:'B',priority:'blue',dueDate:dueDate(30),stage:'comply',done:false},
+  {id:'t29',phase:'COMPLIANCE & FUNDING',title:'my-AI Trust Mark audit',note:"Malaysia AI trustworthiness certification.",assignedTo:'M',priority:'green',dueDate:dueDate(90),stage:'comply',done:false},
+  {id:'t30',phase:'KNOWLEDGE MANAGEMENT',title:'Idea / brainstorming bookkeeping',note:'Document all ideas and pivots.',assignedTo:'B',priority:'green',dueDate:dueDate(7),stage:'validate',done:false},
+  {id:'t31',phase:'KNOWLEDGE MANAGEMENT',title:'Future predictions — industry bookkeeping',note:'Track competitor moves and market shifts.',assignedTo:'B',priority:'green',dueDate:dueDate(14),stage:'validate',done:false},
+];
+
+const STAGES = [
+  {key:'validate',name:'Validate',  color:'#C92B2B'},
+  {key:'form',    name:'Form Co.',  color:'#B45309'},
+  {key:'mvp',     name:'Build MVP', color:'#1D4ED8'},
+  {key:'client',  name:'1st Client',color:'#C4522A'},
+  {key:'beta',    name:'Beta',      color:'#15803D'},
+  {key:'comply',  name:'Comply',    color:'#7C3AED'},
+  {key:'scale',   name:'Scale',     color:'#0F766E'},
+];
+
+const PRIORITY_MAP = {
+  red:   { label:'Do Now',   cls:'status-red',   dot:'#C92B2B' },
+  amber: { label:'Delegate', cls:'status-amber', dot:'#B45309' },
+  yellow:{ label:'Delegate', cls:'status-amber', dot:'#B45309' },
+  blue:  { label:'Schedule', cls:'status-blue',  dot:'#1D4ED8' },
+  green: { label:'Do Last',  cls:'status-green', dot:'#15803D' },
+};
+
+/* ══════════════════════════════════════════════
+   FILTERS
+   ══════════════════════════════════════════════ */
+let mFilter='ALL', pFilter='ALL', searchQ='';
+let expandedGroups = {};
+
+function setMemberFilter(v, el){
+  mFilter=v;
+  document.querySelectorAll('[data-mf]').forEach(c=>c.classList.toggle('active', c.dataset.mf===v));
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  document.querySelector('.sidebar-item:first-of-type')?.classList[v==='ALL'?'add':'remove']('active');
+  renderBoard();
+}
+function togglePriorityFilter(v,el){
+  pFilter = pFilter===v ? 'ALL' : v;
+  document.querySelectorAll('[data-pf]').forEach(c=>c.classList.toggle('active', c.dataset.pf===pFilter));
+  renderBoard();
+}
+function sidebarFilter(v){ setMemberFilter(v, null); }
+function filterByPriority(v){ togglePriorityFilter(v, null); }
+function filterByStage(v){ expandAll(); }
+function searchTasks(q){ searchQ=q.toLowerCase(); renderBoard(); }
+
+function getVisible(){
+  return TASKS.filter(t=>{
+    if(mFilter!=='ALL' && t.assignedTo!==mFilter) return false;
+    if(pFilter!=='ALL' && (t.priority!==pFilter && !(pFilter==='amber'&&t.priority==='yellow'))) return false;
+    if(searchQ && !t.title.toLowerCase().includes(searchQ) && !(t.note||'').toLowerCase().includes(searchQ)) return false;
+    return true;
+  });
+}
+
+/* ══════════════════════════════════════════════
+   PIPELINE + STATS
+   ══════════════════════════════════════════════ */
+function renderPipeline(){
+  const track = document.getElementById('pipeline-track');
+  if(!track) return;
+  const tot={}, done={};
+  TASKS.forEach(t=>{ tot[t.stage]=(tot[t.stage]||0)+1; if(t.done) done[t.stage]=(done[t.stage]||0)+1; });
+
+  let html='';
+  STAGES.forEach((s,i)=>{
+    const t=tot[s.key]||0, d=done[s.key]||0;
+    const pct=t?Math.round(d/t*100):0;
+    const isDone=pct===100, isActive=!isDone&&pct>0||(i===0);
+    const state=isDone?'done':isActive?'active':'idle';
+    html+=`
+      <div class="pipe-step ${state}" title="${s.name}: ${d}/${t}">
+        <div class="pipe-dot ${state}"></div>
+        <div class="pipe-name">${s.name}</div>
+        <div class="pipe-frac">${d}/${t}</div>
+      </div>`;
+    if(i<STAGES.length-1) html+=`<span class="pipe-arrow">›</span>`;
+  });
+  track.innerHTML=html;
+
+  const totalDone=TASKS.filter(t=>t.done).length;
+  const pct=Math.round(totalDone/TASKS.length*100);
+  document.getElementById('pipe-overall').textContent=`${pct}% overall · ${totalDone}/${TASKS.length} done`;
+}
+
+function renderStats(){
+  const wrap=document.getElementById('stats-row');
+  if(!wrap) return;
+  const all=TASKS, done=all.filter(t=>t.done);
+  const byM=all.filter(t=>t.assignedTo==='M'), byJ=all.filter(t=>t.assignedTo==='J'), byB=all.filter(t=>t.assignedTo==='B');
+  const pct=Math.round(done.length/all.length*100);
+
+  wrap.innerHTML=`
+    ${statCard(pct+'%','overall done','var(--green)',pct)}
+    ${statCard(done.length+'/'+all.length,'tasks complete','var(--accent)',pct)}
+    ${statCard(byM.filter(t=>t.done).length+'/'+byM.length,'M done','var(--red)',byM.length?Math.round(byM.filter(t=>t.done).length/byM.length*100):0)}
+    ${statCard(byJ.filter(t=>t.done).length+'/'+byJ.length,'J done','var(--accent)',byJ.length?Math.round(byJ.filter(t=>t.done).length/byJ.length*100):0)}
+    ${statCard(byB.filter(t=>t.done).length+'/'+byB.length,'B done','var(--green)',byB.length?Math.round(byB.filter(t=>t.done).length/byB.length*100):0)}
+    ${statCard(all.filter(t=>t.priority==='red'&&!t.done).length,'critical left','var(--red)',0)}
+  `;
+
+  document.getElementById('sb-all').textContent=TASKS.length;
+  document.getElementById('sb-m').textContent=byM.length;
+  document.getElementById('sb-j').textContent=byJ.length;
+  document.getElementById('sb-b').textContent=byB.length;
+}
+
+function statCard(num,label,color,pct){
+  return `
+  <div class="stat-card">
+    <div class="stat-num" style="color:${color}">${num}</div>
+    <div class="stat-label">${label}</div>
+    ${pct>0?`<div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:${pct}%;background:${color}"></div></div>`:''}
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   BOARD
+   ══════════════════════════════════════════════ */
+const PHASE_COLORS = {
+  'NOW — Validate':       '#C92B2B',
+  'COMPANY FORMATION':    '#B45309',
+  'PRODUCT & TECH':       '#1D4ED8',
+  'COMPLIANCE & FUNDING': '#7C3AED',
+  'KNOWLEDGE MANAGEMENT': '#15803D',
+};
+
+function renderBoard(){
+  const wrap=document.getElementById('board-wrap');
+  if(!wrap) return;
+  const visible=getVisible();
+  const phases=[...new Set(TASKS.map(t=>t.phase))];
+  wrap.innerHTML='';
+  phases.forEach(phase=>{
+    const allInPhase=TASKS.filter(t=>t.phase===phase);
+    const visInPhase=visible.filter(t=>t.phase===phase);
+    if(visInPhase.length===0 && (mFilter!=='ALL'||pFilter!=='ALL'||searchQ)) return;
+    if(!(phase in expandedGroups)) expandedGroups[phase]=true;
+    const isOpen=expandedGroups[phase];
+    const color=PHASE_COLORS[phase]||'var(--accent)';
+    const done=allInPhase.filter(t=>t.done).length;
+    const pct=Math.round(done/allInPhase.length*100);
+
+    const group=document.createElement('div');
+    group.className='phase-group'+(isOpen?' open':'');
+    group.id='pg-'+phase.replace(/\W/g,'_');
+
+    group.innerHTML=`
+      <div class="phase-header" onclick="toggleGroup('${phase.replace(/'/g,"\\'")}')">
+        <span class="phase-chevron">›</span>
+        <div class="phase-color-bar" style="background:${color}"></div>
+        <div class="phase-name">${phase}</div>
+        <div class="phase-meta">
+          <div class="phase-progress-mini"><div class="phase-prog-fill" style="width:${pct}%;background:${color}"></div></div>
+          <div class="phase-count">${done}/${allInPhase.length}</div>
+        </div>
+      </div>
+      ${isOpen ? renderPhaseBody(phase, visInPhase, color) : ''}
+    `;
+    wrap.appendChild(group);
+  });
+}
+
+function renderPhaseBody(phase, tasks, color){
+  if(tasks.length===0) return `<div style="padding:12px 14px;color:var(--text-3);font-size:12px;background:var(--bg-surface);border-radius:0 0 var(--radius) var(--radius);border:1px solid var(--border);border-top:none;">No tasks match current filter in this phase.</div>`;
+  let html=`
+    <div class="col-headers">
+      <div class="col-head">Task</div>
+      <div class="col-head">Priority</div>
+      <div class="col-head">Assigned</div>
+      <div class="col-head">Due</div>
+      <div class="col-head">Stage</div>
+      <div class="col-head">Actions</div>
+    </div>
+    <div class="task-rows" style="border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden;">`;
+  tasks.forEach(t=>{ html+=renderTaskRow(t); });
+  html+=`</div>
+    <div class="add-row" onclick="openAddModal('${phase.replace(/'/g,"\\'")}')">
+      <div class="add-plus">+</div>
+      Add task to ${phase}
+    </div>`;
+  return html;
+}
+
+function renderTaskRow(task){
+  const dl=daysLeft(task.dueDate);
+  const due=task.done?'done':dl<0?'overdue':dl<=5?'soon':'ok';
+  const dueLabel=task.done?'Done ✓':dl<0?`${Math.abs(dl)}d overdue`:dl===0?'Due today':`${dl}d left`;
+  const dueClass={done:'due-done',overdue:'due-overdue',soon:'due-soon',ok:'due-ok'}[due];
+  const pm=PRIORITY_MAP[task.priority]||PRIORITY_MAP.green;
+  const mv=MEMBERS[task.assignedTo]||{initial:task.assignedTo,role:'',avClass:'av-j-sm'};
+
+  return `
+  <div class="task-row${task.done?' done':''}" id="tr-${task.id}">
+    <div class="task-name-cell">
+      <div class="task-check${task.done?' checked':''}" onclick="toggleDone('${task.id}',event)"></div>
+      <div>
+        <div class="task-name" title="${task.title}">${task.title}</div>
+        <div class="task-note-inline">${task.note||''}</div>
+      </div>
+    </div>
+    <div>
+      <div class="status-chip ${pm.cls}">
+        <span class="sdot"></span>${pm.label}
+      </div>
+    </div>
+    <div class="assignee-cell">
+      <div class="assignee-av ${mv.avClass}">${mv.initial}</div>
+      <div class="assignee-name">${mv.initial}</div>
+    </div>
+    <div class="due-cell">
+      <div class="due-date">${fmtDate(task.dueDate)}</div>
+      <div class="due-tag ${dueClass}">${dueLabel}</div>
+    </div>
+    <div>
+      <div class="stage-badge">${task.stage}</div>
+    </div>
+    <div class="row-actions">
+      <button class="row-btn" onclick="editTask('${task.id}')" title="Edit">✏</button>
+      <button class="row-btn" onclick="delegateTask('${task.id}')" title="Delegate">↗</button>
+      <button class="row-btn del" onclick="deleteTask('${task.id}')" title="Delete">✕</button>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   INTERACTIONS
+   ══════════════════════════════════════════════ */
+function toggleGroup(phase){
+  expandedGroups[phase]=!expandedGroups[phase];
+  renderBoard();
+}
+function collapseAll(){ Object.keys(expandedGroups).forEach(k=>expandedGroups[k]=false); renderBoard(); }
+function expandAll(){ const phases=[...new Set(TASKS.map(t=>t.phase))]; phases.forEach(p=>expandedGroups[p]=true); renderBoard(); }
+
+function toggleDone(id, e){
+  e.stopPropagation();
+  const t=TASKS.find(x=>x.id===id); if(!t) return;
+  t.done=!t.done;
+  renderPipeline(); renderStats(); renderBoard();
+  toast(t.done?'Task completed ✓':'Task reopened', t.done?'ok':'info');
+}
+
+function deleteTask(id){
+  if(!confirm('Delete this task?')) return;
+  TASKS=TASKS.filter(t=>t.id!==id);
+  renderPipeline(); renderStats(); renderBoard();
+  toast('Task deleted','err');
+}
+
+/* ── AUTO-ASSIGN PREVIEW ── */
+function autoAssign(title='', note=''){
+  const text=(title+' '+note).toLowerCase();
+  const scores={M:0,J:0,B:0};
+  Object.entries(KEYWORDS).forEach(([kw,m])=>{ if(text.includes(kw)) scores[m]++; });
+  let best='M', bestScore=-1;
+  Object.entries(scores).forEach(([m,s])=>{ if(s>bestScore){bestScore=s;best=m;} });
+  return {assignedTo:best, confidence:bestScore};
+}
+function autoPriority(title=''){
+  const t=title.toLowerCase();
+  if(['urgent','critical','block','fail','today','asap','payment','sign','legal','deadline','overdue'].some(w=>t.includes(w))) return 'red';
+  if(['send','reply','follow','update','remind','check','confirm'].some(w=>t.includes(w))) return 'amber';
+  if(['plan','strategy','setup','register','design','review','draft','prepare','research'].some(w=>t.includes(w))) return 'blue';
+  return 'green';
+}
+
+function previewAutoAssign(){
+  const title=document.getElementById('at-title')?.value||'';
+  const preview=document.getElementById('auto-assign-preview');
+  const text=document.getElementById('auto-assign-text');
+  if(title.length<3){ preview.style.display='none'; return; }
+  const {assignedTo, confidence}=autoAssign(title);
+  preview.style.display='block';
+  const mv=MEMBERS[assignedTo];
+  text.textContent=`Auto-assign → ${assignedTo} (${mv.role})${confidence===0?' — no keyword match, defaulted':''}`;
+}
+
+let _editingModal=null;
+function openAddModal(phase=''){
+  document.getElementById('at-title').value='';
+  document.getElementById('at-note').value='';
+  document.getElementById('at-phase').value=phase||'';
+  document.getElementById('at-days').value='7';
+  document.getElementById('at-assign').value='';
+  document.getElementById('at-priority').value='';
+  document.getElementById('auto-assign-preview').style.display='none';
+  document.getElementById('add-modal').style.display='flex';
+  _editingModal=null;
+  setTimeout(()=>document.getElementById('at-title').focus(), 50);
+}
+function closeModal(){
+  document.getElementById('add-modal').style.display='none';
+  _editingModal=null;
+}
+function saveNewTask(){
+  const title=document.getElementById('at-title').value.trim();
+  if(!title){ toast('Title is required','err'); return; }
+  const note=document.getElementById('at-note').value.trim()||'';
+  const phase=document.getElementById('at-phase').value.trim()||'TASKS';
+  const days=parseInt(document.getElementById('at-days').value)||7;
+  const overAssign=document.getElementById('at-assign').value;
+  const overPriority=document.getElementById('at-priority').value;
+  const {assignedTo}=autoAssign(title, note);
+  const task={
+    id:genId(), phase, title, note,
+    assignedTo: overAssign||assignedTo,
+    priority: overPriority||autoPriority(title),
+    dueDate: new Date(Date.now()+days*86400000).toISOString(),
+    stage:'validate', done:false,
+  };
+  TASKS.push(task);
+  closeModal();
+  renderPipeline(); renderStats(); renderBoard();
+  toast('Task added → '+task.assignedTo, 'ok');
+}
+function editTask(id){
+  const t=TASKS.find(x=>x.id===id); if(!t) return;
+  document.getElementById('at-title').value=t.title;
+  document.getElementById('at-note').value=t.note||'';
+  document.getElementById('at-phase').value=t.phase;
+  document.getElementById('at-days').value=Math.max(1,daysLeft(t.dueDate));
+  document.getElementById('at-assign').value=t.assignedTo;
+  document.getElementById('at-priority').value=t.priority==='yellow'?'amber':t.priority;
+  previewAutoAssign();
+  document.getElementById('add-modal').style.display='flex';
+  _editingModal=id;
+  document.querySelector('#add-modal .modal-title').textContent='Edit Task';
+  document.querySelector('#add-modal .btn-primary').textContent='Save Changes';
+  document.querySelector('#add-modal .btn-primary').onclick=saveEditTask;
+}
+function saveEditTask(){
+  const t=TASKS.find(x=>x.id===_editingModal); if(!t) return;
+  t.title=document.getElementById('at-title').value.trim()||t.title;
+  t.note=document.getElementById('at-note').value.trim()||'';
+  t.phase=document.getElementById('at-phase').value.trim()||t.phase;
+  t.assignedTo=document.getElementById('at-assign').value||t.assignedTo;
+  t.priorit

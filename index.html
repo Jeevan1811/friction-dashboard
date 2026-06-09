@@ -32,49 +32,56 @@
 <!-- ═══════════════ PAGE: TASK BOARD ═══════════════ -->
 <div class="page active" id="page-taskboard">
 
+  <!-- Page Header -->
   <div class="page-header">
     <div>
       <div class="page-title">Task Board</div>
-      <div class="page-sub">Eric Ries · Lean Startup · Started 1 Jun 2026</div>
+      <div class="page-sub" id="tb-hdr-sub">Lean Startup · Started 1 Jun 2026</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <div class="page-date" id="tb-live-date"></div>
+      <button class="btn" onclick="tbCollapseAll()">⊟ Collapse all</button>
+      <button class="btn" onclick="tbExpandAll()">⊞ Expand all</button>
       <button class="btn primary" onclick="tbOpenAddTask()">+ Add Task</button>
     </div>
   </div>
 
-  <!-- Legend -->
-  <div class="legend-row">
-    <div class="leg"><span class="leg-dot red"></span>Important + Urgent</div>
-    <div class="leg"><span class="leg-dot blue"></span>Important, not urgent</div>
-    <div class="leg"><span class="leg-dot yellow"></span>Urgent, not important</div>
-    <div class="leg"><span class="leg-dot green"></span>Least urgent + important</div>
-  </div>
-
   <!-- Pipeline -->
-  <div class="pipeline-wrap">
-    <div class="pipeline-label">STARTUP PIPELINE — OVERALL PROGRESS</div>
-    <div class="pipeline-track" id="tb-pipeline-track"></div>
+  <div class="fw-pipeline-section">
+    <div class="fw-pipeline-header">
+      <div class="fw-pipeline-title">Startup Pipeline</div>
+      <div class="fw-pipeline-pct" id="tb-pipe-overall">0% overall</div>
+    </div>
+    <div class="fw-pipeline-track" id="tb-pipeline-track"></div>
   </div>
 
   <!-- Stats -->
-  <div class="stats-row" id="tb-stats"></div>
+  <div class="fw-stats-row" id="tb-stats"></div>
 
-  <!-- Filters: member + colour (AND logic) -->
-  <div class="filters-row" id="tb-filters">
-    <button class="filt-btn active" data-mf="ALL" onclick="setTBMemberFilter('ALL')">All</button>
-    <button class="filt-btn" data-mf="M" onclick="setTBMemberFilter('M')">M</button>
-    <button class="filt-btn" data-mf="J" onclick="setTBMemberFilter('J')">J</button>
-    <button class="filt-btn" data-mf="B" onclick="setTBMemberFilter('B')">B</button>
-    <div class="filter-sep"></div>
-    <button class="filt-btn" data-cf="red"    onclick="setTBColourFilter('red')"><span class="pdot red" style="display:inline-block;margin-right:5px;vertical-align:middle;"></span>Do Now</button>
-    <button class="filt-btn" data-cf="yellow" onclick="setTBColourFilter('yellow')"><span class="pdot yellow" style="display:inline-block;margin-right:5px;vertical-align:middle;"></span>Delegate</button>
-    <button class="filt-btn" data-cf="blue"   onclick="setTBColourFilter('blue')"><span class="pdot blue" style="display:inline-block;margin-right:5px;vertical-align:middle;"></span>Schedule</button>
-    <button class="filt-btn" data-cf="green"  onclick="setTBColourFilter('green')"><span class="pdot green" style="display:inline-block;margin-right:5px;vertical-align:middle;"></span>Do Last</button>
+  <!-- Filters + Search -->
+  <div class="fw-toolbar" id="tb-filters">
+    <div class="fw-toolbar-left">
+      <div class="fw-chip active" data-mf="ALL" onclick="setTBMemberFilter('ALL')">All members</div>
+      <div class="fw-chip" data-mf="M" onclick="setTBMemberFilter('M')"><div class="fw-av-sm fw-av-m-sm">M</div> M</div>
+      <div class="fw-chip" data-mf="J" onclick="setTBMemberFilter('J')"><div class="fw-av-sm fw-av-j-sm">J</div> J</div>
+      <div class="fw-chip" data-mf="B" onclick="setTBMemberFilter('B')"><div class="fw-av-sm fw-av-b-sm">B</div> B</div>
+      <div class="fw-toolbar-divider"></div>
+      <div class="fw-chip" data-cf="red"   onclick="setTBColourFilter('red')">  <div class="fw-chip-dot" style="background:#C92B2B"></div>Do Now</div>
+      <div class="fw-chip" data-cf="amber" onclick="setTBColourFilter('amber')"><div class="fw-chip-dot" style="background:#B45309"></div>Delegate</div>
+      <div class="fw-chip" data-cf="blue"  onclick="setTBColourFilter('blue')"> <div class="fw-chip-dot" style="background:#1D4ED8"></div>Schedule</div>
+      <div class="fw-chip" data-cf="green" onclick="setTBColourFilter('green')"><div class="fw-chip-dot" style="background:#15803D"></div>Do Last</div>
+    </div>
+    <div class="fw-toolbar-right">
+      <div class="fw-search-box">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 1 0 13A6.5 6.5 0 0 1 6.5 0zm0 1.5a5 5 0 1 0 0 10A5 5 0 0 0 6.5 1.5zm4.97 9.53a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06l3.5-3.5z"/></svg>
+        <input class="fw-search-input" placeholder="Search tasks…" oninput="tbSearch(this.value)"/>
+      </div>
+    </div>
   </div>
 
   <!-- Board -->
-  <div class="section" id="tb-board"></div>
+  <div class="fw-board-wrap" id="tb-board"></div>
+
 </div>
 
 <!-- ═══════════════ PAGE: ANAL ═══════════════ -->
