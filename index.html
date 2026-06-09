@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Startup Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<!-- Supabase JS v2 — must load before config.js and supabase-db.js -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Local env config — gitignored, copy from config.example.js -->
+<script src="config.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════ TOP NAV ═══════════════ -->
+<nav class="topnav">
+  <div class="nav-brand">
+    <div class="nav-title">Startup OS</div>
+    <div class="nav-sub" id="nav-date">Loading...</div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn active" data-page="taskboard" onclick="showPage('taskboard')">Task Board</button>
+    <button class="nav-btn anal-btn"    data-page="anal"      onclick="showPage('anal')">Anal</button>
+    <button class="nav-btn clients-btn" data-page="clients"   onclick="showPage('clients')">Clients</button>
+    <button class="nav-btn docs-btn"    data-page="docs"      onclick="showPage('docs')">Docs</button>
+    <button class="nav-btn backend-btn" data-page="backend"   onclick="showPage('backend')">Backend</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ PAGE: TASK BOARD ═══════════════ -->
+<div class="page active" id="page-taskboard">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Task Board</div>
+      <div class="page-sub">Eric Ries · Lean Startup · Started 1 Jun 2026</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div class="page-date" id="tb-live-date"></div>
+      <button class="btn primary" onclick="tbOpenAddTask()">+ Add Task</button>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-row">
+    <div class="leg"><span class="leg-dot red"></span>Important + Urgent</div>
+    <div class="leg"><span class="leg-dot blue"></span>Important, not urgent</div>
+    <div class="leg"><span class="leg-dot yellow"></span>Urgent, not important</div>
+    <div class="leg"><span class="leg-dot green"></span>Least urgent + important</div>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="pipeline-wrap">
+    <div class="pipeline-label">STARTUP PIPELINE — OVERALL PROGRESS</div>
+    <div class="pipeline-track" id="tb-pipeline-track"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="tb-stats"></div>
+
+  <!-- Filters: member + colour (AND logic) -->
+  <div class="filters-row" id="tb-filters">
+    <button class="filt-btn active" data-mf="ALL" onclick="setTBMemberFilter('ALL')">All</button>
+    <button class="filt-btn" data-mf="M" onclick="setTBMemberFilter('M')">M</button>
+    <button class="filt-btn" data-mf="J" onclick="setTBMemberFilter('J')">J</button>
+    <button class="filt-btn" data-mf="B" onclick="setTBMemberFilter('B')">B</button>
+    <div class="filter-sep"></div>
+    <button class="filt-btn" data-cf="red"    onclick="setTBColourFilter('red')"><span class="pdot red" style="display:inline-block;margin-right:5px;vertical-align:middle;"></span>Do Now</button>
+    <button class="filt-btn" data-cf="yellow" onclick="setTBColourFilter('yellow')"><span class="pdot yellow" style="display:inline-block;margin-right:5px;vertical-align:middle;"></span>Delegate</button>
+    <button class="filt-btn" data-cf="blue"   onclick="setTBColourFilter('blue')"><span class="pdot blue" style="display:inline-block;margin-right:5px;vertical-align:middle;"></span>Schedule</button>
+    <button class="filt-btn" data-cf="green"  onclick="setTBColourFilter('green')"><span class="pdot green" style="display:inline-block;margin-right:5px;vertical-align:middle;"></span>Do Last</button>
+  </div>
+
+  <!-- Board -->
+  <div class="section" id="tb-board"></div>
+</div>
+
+<!-- ═══════════════ PAGE: ANAL ═══════════════ -->
+<div class="page" id="page-anal">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">KPI Analytics</div>
+      <div class="page-sub">Startup Health Score · Master Formula · Individual Performance</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <!-- SHS Hero -->
+    <div class="card" style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-bottom:20px;">
+      <div style="text-align:center;">
+        <div id="shs-ring" style="width:100px;height:100px;border-radius:50%;border:5px solid #ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:border-color 0.4s;">
+          <div id="shs-num" style="font-size:30px;font-weight:800;">—</div>
+          <div class="mono text-xs muted">SHS</div>
+        </div>
+        <div id="shs-zone-label" class="mono text-xs" style="margin-top:8px;padding:3px 10px;border-radius:10px;">No data</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Startup Health Score (SHS)</div>
+        <div class="muted text-sm" style="line-height:1.7;">One number that answers: is this startup getting healthier? Enter a data point below to start your growth line.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="stat-card" style="min-width:80px;"><div class="stat-num" id="score-m" style="color:var(--m-ana);">—</div><div class="stat-label">M score</div></div>
+        <div class="stat-card" style="min-width:80px;"><div class="stat-num" id="score-j" style="color:var(--j-ana);">—</div><div class="stat-label">J score</div></div>
+        <div class="stat-card" style="min-width:80px;"><div class="stat-num" id="score-b" style="color:var(--b-ana);">—</div><div class="stat-label">B score</div></div>
+        <div class="stat-card" style="min-width:80px;"><div class="stat-num" id="score-team">—</div><div class="stat-label">Team avg</div></div>
+      </div>
+    </div>
+
+    <!-- Master chart -->
+    <div class="card" style="margin-bottom:20px;">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">SHS — Master Performance Line</div>
+      <div class="muted mono text-xs" style="margin-bottom:18px;">Overall startup health · Target: above 66 within 90 days</div>
+      <div style="position:relative;height:300px;"><canvas id="chart-master"></canvas></div>
+    </div>
+
+    <!-- Formula box -->
+    <div style="background:#1a1a1a;border-radius:12px;padding:22px 26px;margin-bottom:20px;color:#f5f0e8;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:#888;letter-spacing:.08em;margin-bottom:12px;">MASTER FORMULA</div>
+      <div style="font-size:15px;font-weight:700;font-family:var(--font-mono);color:#fff;margin-bottom:18px;">SHS = (0.35 × RE) + (0.25 × DS) + (0.25 × OE) + (0.15 × AI)</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;">
+        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:12px;border-left:3px solid #ef4444;">
+          <div style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:#ef9999;">RE — Revenue Efficiency (35%)</div>
+          <div style="font-size:11px;font-family:var(--font-mono);color:#888;margin-top:4px;">(Actual Revenue ÷ Target Revenue) × 100</div>
+          <div style="font-size:11px;color:#666;margin-top:6px;line-height:1.5;">Revenue in RM is survival. Highest weight.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:12px;border-left:3px solid #f59e0b;">
+          <div style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:#fcd386;">DS — Decision Speed (25%)</div>
+          <div style="font-size:11px;font-family:var(--font-mono);color:#888;margin-top:4px;">100 − (Avg Decision Days ÷ 14) × 100</div>
+          <div style="font-size:11px;color:#666;margin-top:6px;line-height:1.5;">Speed of iteration is your competitive advantage.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:12px;border-left:3px solid #38bdf8;">
+          <div style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:#93d5f5;">OE — Operational Efficiency (25%)</div>
+          <div style="font-size:11px;font-family:var(--font-mono);color:#888;margin-top:4px;">((New − Old) ÷ Old) × 100, normalised</div>
+          <div style="font-size:11px;color:#666;margin-top:6px;line-height:1.5;">Do more with less. Efficiency compounds.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:12px;border-left:3px solid #4ade80;">
+          <div style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:#86efad;">AI Impact (15%)</div>
+          <div style="font-size:11px;font-family:var(--font-mono);color:#888;margin-top:4px;">((New AI Out − Old) ÷ Old) × 100, normalised</div>
+          <div style="font-size:11px;color:#666;margin-top:6px;line-height:1.5;">Proof your AI product is actually working.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input panel -->
+    <div class="card" style="margin-bottom:20px;">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Record a period</div>
+      <div class="muted mono text-xs" style="margin-bottom:18px;">Enter values — SHS calculated automatically</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Actual Revenue (RM)</label><input id="inp-rev-actual" type="number" placeholder="e.g. 5000" min="0"/></div>
+        <div class="form-group"><label>Target Revenue (RM)</label><input id="inp-rev-target" type="number" placeholder="e.g. 20000" min="1"/></div>
+        <div class="form-group"><label>Avg Decision Time (days)</label><input id="inp-ds" type="number" placeholder="e.g. 2" min="0" step="0.1"/></div>
+        <div class="form-group"><label>Op. Output this period</label><input id="inp-oe-new" type="number" placeholder="e.g. 120" min="0"/></div>
+        <div class="form-group"><label>Op. Output last period</label><input id="inp-oe-old" type="number" placeholder="e.g. 100" min="1"/></div>
+        <div class="form-group"><label>AI Output this period</label><input id="inp-ai-new" type="number" placeholder="e.g. 80" min="0"/></div>
+        <div class="form-group"><label>AI Output last period</label><input id="inp-ai-old" type="number" placeholder="e.g. 60" min="1"/></div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin-top:18px;padding-top:18px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Individual scores (0–100)</div>
+        <div class="form-grid">
+          <div class="form-group"><label style="color:var(--m-ana);">M — CEO/Ops</label><input id="inp-m" type="number" placeholder="0–100" min="0" max="100"/></div>
+          <div class="form-group"><label style="color:var(--j-ana);">J — CTO</label><input id="inp-j" type="number" placeholder="0–100" min="0" max="100"/></div>
+          <div class="form-group"><label style="color:var(--b-ana);">B — CIO</label><input id="inp-b" type="number" placeholder="0–100" min="0" max="100"/></div>
+        </div>
+      </div>
+      <button class="btn primary mt-20" onclick="analAddEntry()">+ Record this period</button>
+    </div>
+
+    <!-- KPI log -->
+    <div id="kpi-log-wrap" style="display:none;margin-bottom:20px;">
+      <div class="section-title">RECORDED ENTRIES</div>
+      <div id="kpi-log" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- Individual charts -->
+    <div class="section-title">Individual & Team Performance</div>
+    <div class="grid-2">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;">
+          <div><div style="font-size:14px;font-weight:700;color:var(--m-ana);">M — You</div><div class="muted mono text-xs">CEO · Revenue · Decisions · Ops</div></div>
+          <div style="font-size:22px;font-weight:800;color:var(--m-ana);" id="score-m2">—</div>
+        </div>
+        <div style="position:relative;height:180px;"><canvas id="chart-m"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;">
+          <div><div style="font-size:14px;font-weight:700;color:var(--j-ana);">J — CTO</div><div class="muted mono text-xs">Tech · AI Impact · Speed</div></div>
+          <div style="font-size:22px;font-weight:800;color:var(--j-ana);" id="score-j2">—</div>
+        </div>
+        <div style="position:relative;height:180px;"><canvas id="chart-j"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;">
+          <div><div style="font-size:14px;font-weight:700;color:var(--b-ana);">B — CIO</div><div class="muted mono text-xs">Ops · Information · Decisions</div></div>
+          <div style="font-size:22px;font-weight:800;color:var(--b-ana);" id="score-b2">—</div>
+        </div>
+        <div style="position:relative;height:180px;"><canvas id="chart-b"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;">
+          <div><div style="font-size:14px;font-weight:700;">M + J + B Combined</div><div class="muted mono text-xs">Team average performance</div></div>
+          <div style="font-size:22px;font-weight:800;" id="score-team2">—</div>
+        </div>
+        <div style="position:relative;height:180px;"><canvas id="chart-team"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE: CLIENTS ═══════════════ -->
+<div class="page" id="page-clients">
+  <div id="cl-content"></div>
+</div>
+
+<!-- ═══════════════ PAGE: DOCS ═══════════════ -->
+<div class="page" id="page-docs">
+  <div id="docs-content"></div>
+</div>
+
+<!-- ═══════════════ PAGE: BACKEND ═══════════════ -->
+<div class="page" id="page-backend">
+  <div id="be-content"></div>
+</div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="core.js"></script>
+<!-- supabase-db.js loads AFTER core.js so it can reference SK -->
+<script src="supabase-db.js"></script>
+<script src="page-taskboard.js"></script>
+<script src="page-anal.js"></script>
+<script src="page-clients.js"></script>
+<script src="page-docs.js"></script>
+<script src="page-backend.js"></script>
+
+<script>
+/* ── HELPERS (global scope — available to page-*.js) ── */
+function updateNavDate(){
+  const el=document.getElementById('nav-date');
+  const tb=document.getElementById('tb-live-date');
+  const now=new Date();
+  const str=`Day ${daysSinceStart()+1} · ${now.toLocaleDateString('en-MY',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}`;
+  if(el) el.textContent=str;
+  if(tb) tb.innerHTML=str;
+}
+
+function syncAnalScores(){
+  ['m','j','b','team'].forEach(k=>{
+    const src=document.getElementById('score-'+k);
+    const dst=document.getElementById('score-'+k+'2');
+    if(src&&dst) dst.textContent=src.textContent;
+  });
+}
+
+// Entry row style
+const styleEl=document.createElement('style');
+styleEl.textContent=`.entry-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;}.entry-row:last-child{border-bottom:none;}`;
+document.head.appendChild(styleEl);
+
+// Override showPage to sync anal scores
+const _origShowPage=showPage;
+window.showPage=function(p){
+  _origShowPage(p);
+  if(p==='anal') setTimeout(syncAnalScores,200);
+};
+
+/* ── BOOT (async: pull from Supabase before first render) ── */
+(async () => {
+  await initSupabase();   // pull cloud → localStorage, subscribe Realtime
+  initDefaults();         // seed localStorage if any keys are missing
+  updateNavDate();
+  setInterval(updateNavDate,60000);
+  renderTaskboard();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# CODEOWNERS — friction-dashboard
+# Format: <pattern> <owner>
+# Owners must review PRs that touch their files.
+# GitHub usernames — update these once repo is set up.
+
+# ── ARCHITECTURE / CTO (J) ─────────────────────────
+# J owns the shell, routing, and anything that defines
+# how the app is structured or how KPIs are measured.
+/index.html         @Jeevan1811
+/core.js            @Jeevan1811
+/style.css          @Jeevan1811
+/page-backend.js    @Jeevan1811   # system admin: roles, members, keywords, company info
+/page-anal.js       @Jeevan1811   # KPI formula (SHS master) — CTO defines the metrics
+
+# ── FEATURE IMPLEMENTATION / SENIOR DEV (B) ────────
+# B implements all client-facing feature pages.
+/page-taskboard.js  @BaratDev     # task board, pipeline, delegation
+/page-clients.js    @BaratDev     # client list, client detail, client tasks
+/page-docs.js       @BaratDev     # invoice, quotation, document generation
+
+# ── SHARED — both must approve ─────────────────────
+# .gitignore changes need both sign-offs
+/.gitignore         @Jeevan1811 @BaratDev

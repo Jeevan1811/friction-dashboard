@@ -1,0 +1,34 @@
+# Environment variables — NEVER commit
+.env
+.env.local
+.env.*.local
+
+# Supabase client config — contains anon key (safe but gitignored per security policy)
+config.js
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Supabase
+.supabase/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build / cache
+dist/
+.cache/
+.parcel-cache/
+
+# Logs
+*.log
