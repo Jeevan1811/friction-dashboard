@@ -1,0 +1,90 @@
+/* Friction Task Board — Outfit font, exact palette */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── EXACT palette, zero modifications ── */
+  --cream: #FFF9EB;
+  --sage:  #9FB2AC;
+  --blood: #5D0D18;
+
+  /* ── Layout ── */
+  --bg:         #FFF9EB;   /* Exact cream — main surface */
+  --card:       #FFFFFF;   /* White cards on cream */
+  --card-hover: #FDFCF7;
+
+  /* ── Sidebar uses exact Bloodstone ── */
+  --sb:         #5D0D18;
+  --sb-deep:    #4A0A13;
+  --sb-text:    rgba(255,249,235,0.55);
+  --sb-hi:      #FFF9EB;
+  --sb-border:  rgba(255,249,235,0.09);
+  --sb-hover:   rgba(255,249,235,0.07);
+  --sb-active:  rgba(255,249,235,0.13);
+
+  /* ── Text — warm neutrals ── */
+  --t1: #1A0507;
+  --t2: #5C4245;
+  --t3: #9B7D80;
+  --t4: #C5AAAC;
+
+  /* ── Borders ── */
+  --border:    rgba(93,13,24,0.07);
+  --border-md: rgba(93,13,24,0.13);
+  --border-lg: rgba(93,13,24,0.22);
+
+  /* ── Sage accents ── */
+  --sage-bg:  rgba(159,178,172,0.13);
+  --sage-bdr: rgba(159,178,172,0.32);
+
+  /* ── Button — Bloodstone on white ── */
+  --btn:      #5D0D18;
+  --btn-hi:   #7A1020;
+  --btn-text: #FFF9EB;
+
+  /* ── Status ── */
+  --todo:    #9FB2AC;
+  --inprog:  #D97706;
+  --blocked: #DC2626;
+  --done:    #16A34A;
+
+  /* ── Priority ── */
+  --p-crit: #DC2626;
+  --p-high: #EA580C;
+  --p-med:  #D97706;
+  --p-low:  #16A34A;
+
+  /* ── Shadows — bloodstone-tinted, not black ── */
+  --sh-xs: 0 1px 3px rgba(93,13,24,0.07);
+  --sh-sm: 0 2px 8px rgba(93,13,24,0.08);
+  --sh-md: 0 6px 20px rgba(93,13,24,0.10);
+  --sh-lg: 0 12px 40px rgba(93,13,24,0.13);
+  --sh-xl: 0 24px 72px rgba(93,13,24,0.18);
+
+  /* ── Radii ── */
+  --r:   8px;
+  --r-m: 12px;
+  --r-l: 16px;
+
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+html, body, #root { height: 100%; overflow: hidden; background: var(--bg); color: var(--t1); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-lg); }
+
+button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; border-radius: var(--r); }
+
+.clamp2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+
+@keyframes fadein  { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideup { from { opacity:0; transform:translateY(28px) scale(0.97); } to { opacity:1; transform:none; } }
+@keyframes bgIn    { from { opacity:0; } to { opacity:1; } }
+@keyframes blink   { 0%,100%{opacity:1;} 50%{opacity:.25;} }
