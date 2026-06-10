@@ -29,48 +29,66 @@ const NAV = [
   },
 ]
 
+const sectionLabel = {
+  fontSize: 9,
+  fontWeight: 700,
+  color: 'rgba(255,255,255,0.18)',
+  letterSpacing: '0.14em',
+  textTransform: 'uppercase',
+  padding: '8px 10px 5px',
+  userSelect: 'none',
+}
+
 export default function Sidebar() {
   return (
     <aside style={{
-      width: 216,
+      width: 220,
       flexShrink: 0,
-      background: '#0E0908',
+      background: 'linear-gradient(180deg, #140E0B 0%, #0E0A08 100%)',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
       position: 'relative',
-      borderRight: '1px solid rgba(255,255,255,0.04)',
+      borderRight: '1px solid rgba(255,255,255,0.035)',
     }}>
 
       {/* ── Logo ── */}
-      <div style={{ padding: '20px 16px 16px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ padding: '22px 16px 18px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+          {/* Logo mark */}
           <div style={{
-            width: 32, height: 32, borderRadius: 8, background: '#5D0D18',
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #7A1020 0%, #5D0D18 100%)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, boxShadow: '0 2px 8px rgba(93,13,24,0.40)',
+            flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(93,13,24,0.50), inset 0 1px 0 rgba(255,255,255,0.10)',
           }}>
-            <span style={{ fontSize: 16, fontWeight: 800, color: '#FFF9EB', letterSpacing: '-0.04em', lineHeight: 1 }}>F</span>
+            <span style={{
+              fontSize: 17, fontWeight: 800, color: '#FFF9EB',
+              letterSpacing: '-0.05em', lineHeight: 1,
+            }}>F</span>
           </div>
+
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              friction
-            </div>
-            <div style={{ fontSize: 9.5, fontWeight: 500, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.10em', textTransform: 'uppercase', marginTop: 1 }}>
-              Startup OS
-            </div>
+            <div style={{
+              fontSize: 14.5, fontWeight: 700, letterSpacing: '-0.025em',
+              color: 'rgba(255,255,255,0.90)', lineHeight: 1.1,
+            }}>friction</div>
+            <div style={{
+              fontSize: 9, fontWeight: 600, letterSpacing: '0.13em',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)',
+              marginTop: 2,
+            }}>Startup OS</div>
           </div>
         </div>
       </div>
 
       {/* Divider */}
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '0 12px 6px' }}/>
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 14px 8px' }}/>
 
       {/* ── Nav ── */}
-      <nav style={{ padding: '4px 8px', flexShrink: 0 }}>
-        <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '6px 8px 5px' }}>
-          Workspace
-        </div>
+      <nav style={{ padding: '2px 8px', flexShrink: 0 }}>
+        <div style={sectionLabel}>Workspace</div>
         {NAV.map(item => (
           <NavLink
             key={item.path}
@@ -79,48 +97,50 @@ export default function Sidebar() {
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',
-              gap: 9,
-              padding: '7px 10px 7px 12px',
-              borderRadius: 7,
+              gap: 10,
+              padding: '7px 11px 7px 13px',
+              borderRadius: 8,
               cursor: 'pointer',
-              color: isActive ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.38)',
-              background: isActive ? 'rgba(255,255,255,0.07)' : 'transparent',
+              color: isActive ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.35)',
+              background: isActive
+                ? 'linear-gradient(90deg, rgba(93,13,24,0.28) 0%, rgba(93,13,24,0.10) 100%)'
+                : 'transparent',
               fontSize: 13,
               fontWeight: isActive ? 600 : 400,
-              transition: 'background 0.12s, color 0.12s',
+              letterSpacing: isActive ? '-0.01em' : '0',
+              transition: 'background 0.15s, color 0.15s',
               position: 'relative',
               marginBottom: 1,
               textDecoration: 'none',
+              boxShadow: isActive ? 'inset 0 0 0 1px rgba(93,13,24,0.30)' : 'none',
             })}
             onMouseEnter={e => {
-              const el = e.currentTarget
-              if (!el.getAttribute('aria-current')) {
-                el.style.background = 'rgba(255,255,255,0.05)'
-                el.style.color = 'rgba(255,255,255,0.60)'
+              if (!e.currentTarget.getAttribute('aria-current')) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+                e.currentTarget.style.color = 'rgba(255,255,255,0.62)'
               }
             }}
             onMouseLeave={e => {
-              const el = e.currentTarget
-              if (!el.getAttribute('aria-current')) {
-                el.style.background = 'rgba(255,255,255,0.07)'
-                setTimeout(() => {
-                  if (!el.getAttribute('aria-current')) {
-                    el.style.background = 'transparent'
-                    el.style.color = 'rgba(255,255,255,0.38)'
-                  }
-                }, 0)
+              if (!e.currentTarget.getAttribute('aria-current')) {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'rgba(255,255,255,0.35)'
               }
             }}
           >
             {({ isActive }) => (
               <>
+                {/* Active accent bar */}
                 {isActive && (
                   <div style={{
                     position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
-                    width: 2.5, height: 16, borderRadius: '0 2px 2px 0', background: '#5D0D18',
+                    width: 3, height: 18, borderRadius: '0 3px 3px 0',
+                    background: 'linear-gradient(180deg, #7A1020, #5D0D18)',
+                    boxShadow: '0 0 8px rgba(93,13,24,0.50)',
                   }}/>
                 )}
-                <span style={{ opacity: isActive ? 0.9 : 0.6, flexShrink: 0 }}>{item.icon}</span>
+                <span style={{ opacity: isActive ? 0.95 : 0.55, flexShrink: 0, lineHeight: 0 }}>
+                  {item.icon}
+                </span>
                 {item.label}
               </>
             )}
@@ -132,68 +152,73 @@ export default function Sidebar() {
       <div style={{ flex: 1 }}/>
 
       {/* Divider */}
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '0 12px 8px' }}/>
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 14px 8px' }}/>
 
       {/* ── Team ── */}
-      <div style={{ padding: '0 8px 10px', flexShrink: 0 }}>
-        <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '4px 8px 7px' }}>
-          Team
-        </div>
+      <div style={{ padding: '0 8px 8px', flexShrink: 0 }}>
+        <div style={sectionLabel}>Team</div>
         {MEMBERS.map(m => (
           <div key={m.id} style={{
-            display: 'flex', alignItems: 'center', gap: 9,
-            padding: '5px 10px', borderRadius: 7, cursor: 'pointer', transition: 'background 0.12s',
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '6px 11px', borderRadius: 8,
+            cursor: 'pointer', transition: 'background 0.14s',
           }}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
           >
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <div style={{
-                width: 26, height: 26, borderRadius: '50%', background: m.color,
-                color: '#fff', fontSize: 10, fontWeight: 700,
+                width: 28, height: 28, borderRadius: '50%',
+                background: `linear-gradient(135deg, ${m.color}DD, ${m.color})`,
+                color: '#fff', fontSize: 10.5, fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '1.5px solid rgba(255,255,255,0.10)',
+                border: '1.5px solid rgba(255,255,255,0.12)',
+                boxShadow: `0 2px 8px ${m.color}40`,
               }}>{m.id}</div>
               <div style={{
-                position: 'absolute', bottom: 0, right: 0,
-                width: 7, height: 7, borderRadius: '50%',
-                background: '#22C55E', border: '1.5px solid #0E0908',
+                position: 'absolute', bottom: 0, right: -1,
+                width: 8, height: 8, borderRadius: '50%',
+                background: '#34D399', border: '1.5px solid #100C0A',
                 animation: 'pulse 3s ease infinite',
               }}/>
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.78)', lineHeight: 1.2 }}>{m.name}</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', fontWeight: 400 }}>{m.role}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 500, color: 'rgba(255,255,255,0.80)', lineHeight: 1.2, letterSpacing: '-0.01em' }}>{m.name}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontWeight: 400, marginTop: 1 }}>{m.role}</div>
             </div>
           </div>
         ))}
       </div>
 
       {/* Divider */}
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '0 12px 0' }}/>
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 14px 0' }}/>
 
       {/* ── Current user ── */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 9, padding: '11px 14px',
-        flexShrink: 0, cursor: 'pointer', transition: 'background 0.12s',
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '12px 16px',
+        flexShrink: 0, cursor: 'pointer', transition: 'background 0.14s',
       }}
         onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
         onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
       >
         <div style={{
-          width: 28, height: 28, borderRadius: '50%', background: '#8B1525',
+          width: 30, height: 30, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #A01828, #8B1525)',
           color: '#fff', fontSize: 11, fontWeight: 700,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0, border: '1.5px solid rgba(255,255,255,0.10)',
+          flexShrink: 0,
+          border: '1.5px solid rgba(255,255,255,0.12)',
+          boxShadow: '0 2px 8px rgba(139,21,37,0.40)',
         }}>J</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Jeevan</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', fontWeight: 400 }}>Founder</div>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,0.85)', lineHeight: 1.2, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Jeevan</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontWeight: 400, marginTop: 1 }}>Founder</div>
         </div>
-        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style={{ color: 'rgba(255,255,255,0.22)', flexShrink: 0 }}>
-          <circle cx="7" cy="7" r="1" fill="currentColor"/>
-          <circle cx="7" cy="3" r="1" fill="currentColor"/>
-          <circle cx="7" cy="11" r="1" fill="currentColor"/>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ color: 'rgba(255,255,255,0.20)', flexShrink: 0 }}>
+          <circle cx="8" cy="4"  r="1.2" fill="currentColor"/>
+          <circle cx="8" cy="8"  r="1.2" fill="currentColor"/>
+          <circle cx="8" cy="12" r="1.2" fill="currentColor"/>
         </svg>
       </div>
     </aside>

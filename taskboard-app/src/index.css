@@ -1,5 +1,5 @@
-/* ── Friction Startup OS — Design System v3 (Council Verdict) ── */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+/* ── Friction Startup OS — Design System v4 (Framer Edition) ── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -8,56 +8,61 @@
   --blood:   #5D0D18;
   --blood-2: #7A1020;
   --blood-3: #3D0810;
-  --sage:    #9FB2AC;
-  --sage-2:  #7A9B94;
-  --cream:   #FFF9EB;
+  --sage:    #5B8C7D;
+  --sage-2:  #3D7A6C;
+  --sage-lt: rgba(91,140,125,0.10);
+  --rose:    #C47A88;
+  --amber:   #C07D40;
 
-  /* ── Surfaces (3 levels) ───────────────── */
-  --bg:   #F0E8D3;      /* page parchment */
-  --sf-1: #FEFCF6;      /* card surface */
-  --sf-2: #EDE4CC;      /* recessed / inputs */
-  --sf-3: #FFFFFF;      /* elevated / topbar */
+  /* ── Surfaces ──────────────────────────── */
+  --bg:     #F5F0E8;      /* warm parchment page bg */
+  --sf-0:   #EDE8DF;      /* recessed / inputs */
+  --sf-1:   #FDFBF7;      /* card cream */
+  --sf-2:   #FFFFFF;      /* elevated card / topbar */
+  --sf-3:   #FAF8F3;      /* topbar background */
 
-  /* ── Sidebar (warm near-black) ─────────── */
-  --nav-bg: #0E0908;
-  --nav-2:  #160D0B;
-  --nav-3:  #1F1310;
+  /* ── Sidebar ───────────────────────────── */
+  --nav-bg: #100C0A;
+  --nav-2:  #18100D;
+  --nav-3:  #201410;
 
   /* ── Text ──────────────────────────────── */
-  --t1: #0E0204;
-  --t2: #2E1318;
-  --t3: #6B4448;
-  --t4: #A88285;
-  --t5: #D4BCBE;
+  --t1: #1A1410;
+  --t2: #4A3930;
+  --t3: #7A6B62;
+  --t4: #B0A49C;
+  --t5: #D8D0C8;
 
   /* ── Status ────────────────────────────── */
   --c-todo:    #64748B;
-  --c-inprog:  #D97706;
-  --c-blocked: #DC2626;
-  --c-done:    #16A34A;
+  --c-inprog:  #C07D40;
+  --c-blocked: #C0392B;
+  --c-done:    #2D8C5A;
 
   /* ── Priority ──────────────────────────── */
-  --p-critical: #DC2626;
-  --p-high:     #EA580C;
-  --p-medium:   #D97706;
-  --p-low:      #16A34A;
+  --p-critical: #C0392B;
+  --p-high:     #C05B30;
+  --p-medium:   #C07D40;
+  --p-low:      #2D8C5A;
 
-  /* ── Shadows ───────────────────────────── */
-  --sh-xs: 0 1px 2px rgba(14,2,4,0.04);
-  --sh-sm: 0 1px 4px rgba(14,2,4,0.06), 0 0 0 1px rgba(14,2,4,0.04);
-  --sh-md: 0 4px 16px rgba(14,2,4,0.08), 0 0 0 1px rgba(14,2,4,0.05);
-  --sh-lg: 0 12px 40px rgba(14,2,4,0.12), 0 0 0 1px rgba(14,2,4,0.06);
-  --sh-xl: 0 24px 64px rgba(14,2,4,0.16), 0 0 0 1px rgba(14,2,4,0.08);
+  /* ── Shadows (warm-tinted) ─────────────── */
+  --sh-xs: 0 1px 3px rgba(26,20,16,0.04);
+  --sh-sm: 0 2px 8px rgba(26,20,16,0.06), 0 0 0 1px rgba(26,20,16,0.04);
+  --sh-md: 0 4px 20px rgba(26,20,16,0.08), 0 0 0 1px rgba(26,20,16,0.04);
+  --sh-lg: 0 12px 48px rgba(26,20,16,0.10), 0 0 0 1px rgba(26,20,16,0.05);
+  --sh-xl: 0 24px 80px rgba(26,20,16,0.14), 0 0 0 1px rgba(26,20,16,0.06);
 
   /* ── Radius ────────────────────────────── */
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 18px;
+  --r-sm:  6px;
+  --r-md:  10px;
+  --r-lg:  14px;
+  --r-xl:  20px;
+  --r-2xl: 28px;
 
   /* ── Motion ────────────────────────────── */
-  --ease-out:  cubic-bezier(0.22,1,0.36,1);
-  --ease-snap: cubic-bezier(0.18,0.67,0.6,1.22);
+  --ease-out:    cubic-bezier(0.22,1,0.36,1);
+  --ease-spring: cubic-bezier(0.18,0.67,0.6,1.22);
+  --ease-smooth: cubic-bezier(0.4,0,0.2,1);
 }
 
 html { font-size: 16px; }
@@ -69,27 +74,39 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  position: relative;
+}
+
+/* Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
 }
 
 button { font-family: inherit; }
 input, textarea, select { font-family: inherit; }
 
 /* ── Scrollbar ──────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(14,2,4,0.14); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(14,2,4,0.22); }
+::-webkit-scrollbar-thumb { background: rgba(26,20,16,0.12); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(26,20,16,0.20); }
 
 /* ── Keyframes ──────────────────────────── */
 @keyframes fadeIn    { from{opacity:0}                                        to{opacity:1} }
-@keyframes fadeUp    { from{opacity:0;transform:translateY(6px)}              to{opacity:1;transform:translateY(0)} }
-@keyframes slideUp   { from{opacity:0;transform:translateY(12px)}             to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp    { from{opacity:0;transform:translateY(8px)}              to{opacity:1;transform:translateY(0)} }
+@keyframes slideUp   { from{opacity:0;transform:translateY(14px)}             to{opacity:1;transform:translateY(0)} }
 @keyframes slideDown { from{opacity:0;transform:translateY(-8px)}             to{opacity:1;transform:translateY(0)} }
-@keyframes scaleIn   { from{opacity:0;transform:scale(0.96)}                  to{opacity:1;transform:scale(1)} }
+@keyframes scaleIn   { from{opacity:0;transform:scale(0.94) translateY(4px)}  to{opacity:1;transform:scale(1) translateY(0)} }
 @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0.3} }
-@keyframes pulse     { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.25);opacity:0.7} }
+@keyframes pulse     { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.3);opacity:0.7} }
 @keyframes shimmer   { from{background-position:200% 0} to{background-position:-200% 0} }
-@keyframes toastIn   { from{opacity:0;transform:translateX(16px)}             to{opacity:1;transform:translateX(0)} }
-@keyframes toastOut  { from{opacity:1;transform:translateX(0)}                to{opacity:0;transform:translateX(16px)} }
-@keyframes cmdIn      { from{opacity:0;transform:translateY(-6px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
-@keyframes slideRight { from{transform:translateX(-100%)} to{transform:translateX(250%)} }
+@keyframes toastIn   { from{opacity:0;transform:translateX(20px) scale(0.97)} to{opacity:1;transform:translateX(0) scale(1)} }
+@keyframes toastOut  { from{opacity:1;transform:translateX(0)}                to{opacity:0;transform:translateX(20px)} }
+@keyframes cmdIn     { from{opacity:0;transform:translateY(-8px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes slideRight{ from{transform:translateX(-100%)}                      to{transform:translateX(250%)} }
+@keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
