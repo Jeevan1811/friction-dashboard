@@ -28,7 +28,27 @@ function StatCard({ value, label, color, icon }) {
   )
 }
 
-function Column({ col, tasks, onEditTask, onAddTask }) {
+function SkeletonCard() {
+  return (
+    <div style={{
+      borderRadius: 'var(--r-lg)', padding: '14px 14px 12px',
+      background: 'var(--card)', border: '1px solid var(--border)',
+      boxShadow: 'var(--sh-xs)', overflow: 'hidden',
+    }}>
+      {/* Title line */}
+      <div className="skeleton-line" style={{ height: 11, width: '75%', borderRadius: 6, marginBottom: 8 }}/>
+      {/* Note line */}
+      <div className="skeleton-line" style={{ height: 9, width: '55%', borderRadius: 6, marginBottom: 14 }}/>
+      {/* Footer chips */}
+      <div style={{ display:'flex', gap: 6 }}>
+        <div className="skeleton-line" style={{ height: 18, width: 48, borderRadius: 99 }}/>
+        <div className="skeleton-line" style={{ height: 18, width: 36, borderRadius: 99 }}/>
+      </div>
+    </div>
+  )
+}
+
+function Column({ col, tasks, loading, onEditTask, onAddTask }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.id })
   return (
     <div style={{ width: 304, minWidth: 304, display:'flex', flexDirection:'column', flexShrink: 0 }}>
@@ -43,7 +63,7 @@ function Column({ col, tasks, onEditTask, onAddTask }) {
           marginLeft:'auto', background:'var(--surface-2)', border:'1px solid var(--border-md)',
           borderRadius: 20, fontSize: 11, fontWeight: 600, color:'var(--t4)',
           padding:'1px 8px', lineHeight:1.7,
-        }}>{tasks.length}</span>
+        }}>{loading ? '—' : tasks.length}</span>
       </div>
 
       {/* Drop zone */}
@@ -54,15 +74,28 @@ function Column({ col, tasks, onEditTask, onAddTask }) {
         outline: isOver ? `1px dashed ${col.color}40` : 'none',
         transition: 'background 0.15s, outline 0.15s, padding 0.1s',
       }}>
-        <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-          {tasks.map(t => <Card key={t.id} task={t} onEdit={onEditTask}/>)}
-        </SortableContext>
-        {tasks.length === 0 && (
-          <div style={{
-            height: 60, display:'flex', alignItems:'center', justifyContent:'center',
-            border: `1px dashed ${col.color}25`, borderRadius: 'var(--r-lg)',
-            fontSize: 12, color:'var(--t4)', letterSpacing:'0.1px',
-          }}>Drop here</div>
+        {loading ? (
+          <>
+            <SkeletonCard/>
+            <SkeletonCard/>
+            <SkeletonCard/>
+          </>
+        ) : (
+          <>
+            <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+              {tasks.map(t => <Card key={t.id} task={t} onEdit={onEditTask}/>)}
+            </SortableContext>
+            {tasks.length === 0 && (
+              <div style={{
+                height: 80, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap: 5,
+                border: `1px dashed ${col.color}25`, borderRadius: 'var(--r-lg)',
+                fontSize: 12, color:'var(--t4)', letterSpacing:'0.1px',
+              }}>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" opacity="0.4"><rect x="2" y="2" width="14" height="14" rx="3" stroke="currentColor" strokeWidth="1.4"/><path d="M6 9h6M9 6v6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+                No tasks yet
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -84,7 +117,7 @@ function Column({ col, tasks, onEditTask, onAddTask }) {
   )
 }
 
-export default function Board({ tasks, allTasks, filterMember, filterPriority, onFilterMember, onFilterPriority, onAddTask, onEditTask }) {
+export default function Board({ tasks, allTasks, loading, filterMember, filterPriority, onFilterMember, onFilterPriority, onAddTask, onEditTask }) {
   const total    = allTasks.length
   const inProg   = allTasks.filter(t => t.status === 'inprog').length
   const done     = allTasks.filter(t => t.status === 'done').length
@@ -213,7 +246,7 @@ export default function Board({ tasks, allTasks, filterMember, filterPriority, o
         {/* Kanban */}
         <div style={{ display:'flex', gap:14, alignItems:'flex-start', overflowX:'auto', paddingBottom:8 }}>
           {COLS.map(col => (
-            <Column key={col.id} col={col} tasks={tasks.filter(t => t.status === col.id)} onEditTask={onEditTask} onAddTask={onAddTask}/>
+            <Column key={col.id} col={col} tasks={tasks.filter(t => t.status === col.id)} loading={loading} onEditTask={onEditTask} onAddTask={onAddTask}/>
           ))}
         </div>
       </div>

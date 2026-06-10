@@ -1,22 +1,49 @@
-import { useState, useCallback } from 'react'
-import { DndContext, DragOverlay, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core'
+import { useState, useEffect, useCallback } from 'react'
+import {
+  DndContext, DragOverlay,
+  PointerSensor, KeyboardSensor, TouchSensor,
+  useSensor, useSensors, closestCorners,
+} from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { INITIAL_TASKS, COLS } from './data.js'
+import { COLS } from './data.js'
+import { supabase } from './lib/supabase.js'
 import Sidebar from './components/Sidebar.jsx'
 import Board from './components/Board.jsx'
 import Card from './components/Card.jsx'
 import Modal from './components/Modal.jsx'
 
 export default function App() {
-  const [tasks, setTasks] = useState(INITIAL_TASKS)
-  const [activeId, setActiveId] = useState(null)
+  const [tasks, setTasks]         = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [activeId, setActiveId]   = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const [editingTask, setEditingTask] = useState(null)
-  const [filterMember, setFilterMember] = useState(null)
+  const [editingTask, setEditingTask]   = useState(null)
+  const [filterMember, setFilterMember]     = useState(null)
   const [filterPriority, setFilterPriority] = useState(null)
 
+  /* ── Supabase: initial fetch + real-time subscription ── */
+  useEffect(() => {
+    supabase.from('tasks').select('*').order('created_at').then(({ data, error }) => {
+      if (!error) setTasks(data ?? [])
+      setLoading(false)
+    })
+
+    const channel = supabase
+      .channel('tasks-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+        supabase.from('tasks').select('*').order('created_at').then(({ data }) => {
+          if (data) setTasks(data)
+        })
+      })
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
+  }, [])
+
+  /* ── Sensors: pointer + touch (mobile) + keyboard ── */
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
@@ -34,32 +61,38 @@ export default function App() {
       setTasks(prev => prev.map(t => t.id === active.id ? { ...t, status: dest } : t))
   }
 
-  function handleDragEnd({ active, over }) {
+  async function handleDragEnd({ active, over }) {
     setActiveId(null)
     if (!over) return
     const at = tasks.find(t => t.id === active.id)
     if (!at) return
     const isCol = COLS.some(c => c.id === over.id)
     const dest = isCol ? over.id : tasks.find(t => t.id === over.id)?.status
-    if (dest && at.status !== dest)
+    if (dest && at.status !== dest) {
       setTasks(prev => prev.map(t => t.id === active.id ? { ...t, status: dest } : t))
+      await supabase.from('tasks').update({ status: dest }).eq('id', active.id)
+    }
   }
 
-  const openAdd  = useCallback(() => { setEditingTask(null); setModalOpen(true) }, [])
-  const openEdit = useCallback((task) => { setEditingTask(task); setModalOpen(true) }, [])
+  const openAdd   = useCallback(() => { setEditingTask(null); setModalOpen(true) }, [])
+  const openEdit  = useCallback((task) => { setEditingTask(task); setModalOpen(true) }, [])
   const closeModal = useCallback(() => { setModalOpen(false); setEditingTask(null) }, [])
 
-  const saveTask = useCallback((data) => {
+  const saveTask = useCallback(async (data) => {
     if (editingTask) {
       setTasks(prev => prev.map(t => t.id === editingTask.id ? { ...t, ...data } : t))
+      await supabase.from('tasks').update(data).eq('id', editingTask.id)
     } else {
-      setTasks(prev => [...prev, { id: `t${Date.now()}`, status: 'todo', ...data }])
+      const newTask = { id: `t${Date.now()}`, status: 'todo', ...data }
+      setTasks(prev => [...prev, newTask])
+      await supabase.from('tasks').insert([newTask])
     }
     closeModal()
   }, [editingTask, closeModal])
 
-  const deleteTask = useCallback((id) => {
+  const deleteTask = useCallback(async (id) => {
     setTasks(prev => prev.filter(t => t.id !== id))
+    await supabase.from('tasks').delete().eq('id', id)
     closeModal()
   }, [closeModal])
 
@@ -75,7 +108,7 @@ export default function App() {
       <DndContext sensors={sensors} collisionDetection={closestCorners}
         onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
         <Board
-          tasks={filtered} allTasks={tasks}
+          tasks={filtered} allTasks={tasks} loading={loading}
           filterMember={filterMember} filterPriority={filterPriority}
           onFilterMember={setFilterMember} onFilterPriority={setFilterPriority}
           onAddTask={openAdd} onEditTask={openEdit}
