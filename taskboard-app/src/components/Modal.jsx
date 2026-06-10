@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, forwardRef } from 'react'
 import { MEMBERS, PHASES } from '../data.js'
 
 const PRIO_COLORS = { critical:'#DC2626', high:'#EA580C', medium:'#D97706', low:'#16A34A' }
@@ -28,8 +28,9 @@ const Field = ({ label, children }) => (
   </div>
 )
 
-const Input = ({ value, onChange, placeholder, ...rest }) => (
+const Input = forwardRef(({ value, onChange, placeholder, ...rest }, ref) => (
   <input
+    ref={ref}
     value={value}
     onChange={onChange}
     placeholder={placeholder}
@@ -45,7 +46,7 @@ const Input = ({ value, onChange, placeholder, ...rest }) => (
     onBlur={e => { e.target.style.borderColor='rgba(93,13,24,0.11)'; e.target.style.boxShadow='none'; }}
     {...rest}
   />
-)
+))
 
 export default function Modal({ open, task, defaultStatus, onSave, onDelete, onClose }) {
   const [form, setForm] = useState({ title:'', note:'', phase:'', assignee:'', priority:'medium', status:'todo', due:'' })
