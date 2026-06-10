@@ -1,219 +1,378 @@
 import { useState, useEffect, useRef } from 'react'
-import { COLS, MEMBERS, PHASES, PRIORITIES } from '../data.js'
+import { MEMBERS, PHASES } from '../data.js'
 
-const PC = { critical:'var(--p-critical)', high:'var(--p-high)', medium:'var(--p-medium)', low:'var(--p-low)' }
+const PRIO_COLORS = { critical:'#DC2626', high:'#EA580C', medium:'#D97706', low:'#16A34A' }
+const PRIO_BG     = { critical:'rgba(220,38,38,0.10)', high:'rgba(234,88,12,0.10)', medium:'rgba(217,119,6,0.10)', low:'rgba(22,163,74,0.10)' }
+const STAT_COLORS = { todo:'#64748B', inprog:'#D97706', blocked:'#DC2626', done:'#16A34A' }
+const STAT_BG     = { todo:'rgba(100,116,139,0.10)', inprog:'rgba(217,119,6,0.10)', blocked:'rgba(220,38,38,0.10)', done:'rgba(22,163,74,0.10)' }
+const STAT_LABELS = { todo:'To Do', inprog:'In Progress', blocked:'Blocked', done:'Done' }
 
-export default function Modal({ task, onSave, onDelete, onClose }) {
-  const isEdit = !!task
-  const ref = useRef()
-  const [form, setForm] = useState({
-    title: task?.title ?? '', note: task?.note ?? '', phase: task?.phase ?? PHASES[0],
-    assignee: task?.assignee ?? MEMBERS[0].id, priority: task?.priority ?? 'medium',
-    status: task?.status ?? 'todo', due: task?.due ?? '',
-  })
-  const [errors, setErrors] = useState({})
-  const [confirmDel, setConfirmDel] = useState(false)
+const IcoCouncil = () => (
+  <svg width="13" height="13" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="1.6">
+    <circle cx="8" cy="8" r="6.5"/>
+    <circle cx="8" cy="6" r="1.5"/>
+    <path d="M5.5 11c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5" strokeLinecap="round"/>
+  </svg>
+)
 
-  useEffect(() => { ref.current?.focus() }, [])
+const Field = ({ label, children }) => (
+  <div style={{ marginBottom:16 }}>
+    <label style={{
+      display:'block', fontSize:11, fontWeight:700,
+      color:'#7A5558', textTransform:'uppercase',
+      letterSpacing:'0.07em', marginBottom:6,
+    }}>
+      {label}
+    </label>
+    {children}
+  </div>
+)
 
-  const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); if (errors[k]) setErrors(e => ({ ...e, [k]: null })) }
+const Input = ({ value, onChange, placeholder, ...rest }) => (
+  <input
+    value={value}
+    onChange={onChange}
+    placeholder={placeholder}
+    style={{
+      width:'100%', padding:'10px 13px',
+      borderRadius:10, border:'1.5px solid rgba(93,13,24,0.11)',
+      background:'#FFFFFF', color:'#0E0204',
+      fontSize:14, fontWeight:400, outline:'none',
+      transition:'border-color 0.15s, box-shadow 0.15s',
+      fontFamily:'inherit',
+    }}
+    onFocus={e => { e.target.style.borderColor='#5D0D18'; e.target.style.boxShadow='0 0 0 3px rgba(93,13,24,0.10)'; }}
+    onBlur={e => { e.target.style.borderColor='rgba(93,13,24,0.11)'; e.target.style.boxShadow='none'; }}
+    {...rest}
+  />
+)
 
-  function submit(e) {
-    e?.preventDefault()
-    if (!form.title.trim()) { setErrors({ title: 'Title required' }); return }
-    onSave({ ...form, title: form.title.trim(), note: form.note.trim() })
+export default function Modal({ open, task, defaultStatus, onSave, onDelete, onClose }) {
+  const [form, setForm] = useState({ title:'', note:'', phase:'', assignee:'', priority:'medium', status:'todo', due:'' })
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const titleRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    if (task) {
+      setForm({ title:task.title||'', note:task.note||'', phase:task.phase||'', assignee:task.assignee||'', priority:task.priority||'medium', status:task.status||'todo', due:task.due||'' })
+    } else {
+      setForm({ title:'', note:'', phase:'', assignee:'', priority:'medium', status:defaultStatus||'todo', due:'' })
+    }
+    setConfirmDelete(false)
+    setTimeout(() => titleRef.current?.focus(), 100)
+  }, [open, task, defaultStatus])
+
+  useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  if (!open) return null
+
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  const handleSave = () => {
+    if (!form.title.trim()) { titleRef.current?.focus(); return }
+    onSave({ ...form, title: form.title.trim() })
   }
 
-  const inp = (err) => ({
-    width:'100%', padding:'9px 12px',
-    background:'var(--surface-0)', color:'var(--t1)',
-    border: `1px solid ${err ? 'var(--p-critical)' : 'var(--border-md)'}`,
-    borderRadius:'var(--r)', fontSize:13.5, outline:'none',
-    transition:'border-color 0.13s',
-  })
-
-  const lbl = { display:'block', fontSize:11.5, fontWeight:600, color:'var(--t3)', marginBottom:5, letterSpacing:'0.2px', textTransform:'uppercase' }
+  const openCouncil = () => {
+    const q = `Task: "${form.title}"${form.note ? `\nContext: ${form.note}` : ''}\nPriority: ${form.priority}, Status: ${form.status}${form.due ? `, Due: ${form.due}` : ''}\n\nShould we proceed with this task as defined? Any risks, improvements, or blockers we should consider before committing?`
+    window.prompt('Copy and paste this into /the-council:', q)
+  }
 
   return (
-    <div onKeyDown={e => e.key === 'Escape' && onClose()} style={{
-      position:'fixed', inset:0, zIndex:100,
-      display:'flex', alignItems:'flex-end', justifyContent:'center',
-      animation:'overlayin 0.15s ease',
-    }}>
-      {/* Backdrop */}
-      <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(4px)' }}/>
-
-      {/* Panel */}
+    <div
+      style={{
+        position:'fixed', inset:0,
+        background:'rgba(14,2,4,0.35)',
+        backdropFilter:'blur(6px)',
+        WebkitBackdropFilter:'blur(6px)',
+        zIndex:200,
+        display:'flex', alignItems:'flex-end', justifyContent:'center',
+        animation:'fadeIn 0.2s ease',
+        padding:'0',
+      }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+    >
       <div style={{
-        position:'relative', zIndex:1, width:'100%', maxWidth:540,
-        background:'var(--surface-1)',
-        border:'1px solid var(--border-md)',
-        borderBottom:'none',
-        borderRadius:'var(--r-xl) var(--r-xl) 0 0',
-        boxShadow:'var(--sh-modal)',
-        animation:'slideup 0.22s cubic-bezier(0.34,1.56,0.64,1)',
-        maxHeight:'88vh', display:'flex', flexDirection:'column', overflow:'hidden',
+        background:'#FFFFFF',
+        borderRadius:'20px 20px 0 0',
+        width:'100%', maxWidth:560,
+        maxHeight:'92vh',
+        display:'flex', flexDirection:'column',
+        animation:'slideUp 0.30s cubic-bezier(0.22,1,0.36,1)',
+        boxShadow:'0 -8px 40px rgba(93,13,24,0.18)',
+        overflow:'hidden',
       }}>
-        {/* Drag handle */}
-        <div style={{ display:'flex', justifyContent:'center', padding:'10px 0 2px' }}>
-          <div style={{ width:32, height:3.5, borderRadius:99, background:'var(--border-lg)' }}/>
-        </div>
+        {/* Handle */}
+        <div style={{ width:36, height:4, borderRadius:100, background:'rgba(93,13,24,0.15)', margin:'14px auto 0', flexShrink:0 }}/>
 
         {/* Header */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 22px 14px', borderBottom:'1px solid var(--border)' }}>
-          <div>
-            <h2 style={{ fontSize:15, fontWeight:700, color:'var(--t1)', letterSpacing:'-0.3px' }}>{isEdit ? 'Edit Task' : 'New Task'}</h2>
-            <p style={{ fontSize:11.5, color:'var(--t4)', marginTop:2 }}>{isEdit ? 'Update task details' : 'Add a task to the board'}</p>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 22px 0', flexShrink:0 }}>
+          <div style={{ fontSize:17, fontWeight:700, letterSpacing:'-0.02em', color:'#0E0204' }}>
+            {task ? 'Edit Task' : 'New Task'}
           </div>
-          <button onClick={onClose} style={{
-            background:'none', border:'none', cursor:'pointer', padding:6, borderRadius:7,
-            color:'var(--t3)', display:'flex', alignItems:'center', transition:'color 0.12s, background 0.12s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.color='var(--t1)'; e.currentTarget.style.background='var(--surface-3)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color='var(--t3)'; e.currentTarget.style.background='none'; }}
+          <button
+            onClick={onClose}
+            style={{
+              width:30, height:30, borderRadius:'50%',
+              background:'rgba(93,13,24,0.07)', color:'#7A5558',
+              fontSize:15, display:'flex', alignItems:'center', justifyContent:'center',
+              cursor:'pointer', border:'none', transition:'background 0.15s, color 0.15s',
+              fontFamily:'inherit',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(93,13,24,0.12)'; e.currentTarget.style.color='#0E0204'; }}
+            onMouseLeave={e => { e.currentTarget.style.background='rgba(93,13,24,0.07)'; e.currentTarget.style.color='#7A5558'; }}
           >
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2.5 2.5l10 10M12.5 2.5l-10 10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>
+            ✕
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={submit} style={{ flex:1, overflowY:'auto', padding:'18px 22px', display:'flex', flexDirection:'column', gap:14 }}>
-          {/* Title */}
-          <div>
-            <label style={lbl}>Title *</label>
-            <input ref={ref} value={form.title} onChange={e => set('title', e.target.value)}
-              placeholder="What needs to be done?" style={inp(errors.title)}
-              onFocus={e => e.target.style.borderColor='var(--sage-hi)'}
-              onBlur={e => e.target.style.borderColor=errors.title?'var(--p-critical)':'var(--border-md)'}
-            />
-            {errors.title && <p style={{ fontSize:11, color:'var(--p-critical)', marginTop:4 }}>{errors.title}</p>}
-          </div>
+        {/* Body */}
+        <div style={{ overflowY:'auto', padding:'16px 22px 0', flex:1 }}>
 
-          {/* Note */}
-          <div>
-            <label style={lbl}>Note</label>
-            <textarea value={form.note} onChange={e => set('note', e.target.value)} rows={3}
-              placeholder="Context, goals, or blockers..."
-              style={{ ...inp(false), resize:'vertical', lineHeight:1.55 }}
-              onFocus={e => e.target.style.borderColor='var(--sage-hi)'}
-              onBlur={e => e.target.style.borderColor='var(--border-md)'}
+          <Field label="Title *">
+            <Input
+              ref={titleRef}
+              value={form.title}
+              onChange={e => set('title', e.target.value)}
+              placeholder="What needs to get done?"
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSave(); }}}
             />
-          </div>
+          </Field>
 
-          {/* Phase + Assignee */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <div>
-              <label style={lbl}>Phase</label>
-              <select value={form.phase} onChange={e => set('phase', e.target.value)} style={{ ...inp(false), appearance:'none' }}
-                onFocus={e => e.target.style.borderColor='var(--sage-hi)'}
-                onBlur={e => e.target.style.borderColor='var(--border-md)'}
+          <Field label="Note">
+            <textarea
+              value={form.note}
+              onChange={e => set('note', e.target.value)}
+              placeholder="Additional context or details..."
+              rows={3}
+              style={{
+                width:'100%', padding:'10px 13px',
+                borderRadius:10, border:'1.5px solid rgba(93,13,24,0.11)',
+                background:'#FFFFFF', color:'#0E0204',
+                fontSize:13, lineHeight:1.5, outline:'none', resize:'vertical',
+                transition:'border-color 0.15s, box-shadow 0.15s',
+                fontFamily:'inherit', minHeight:72,
+              }}
+              onFocus={e => { e.target.style.borderColor='#5D0D18'; e.target.style.boxShadow='0 0 0 3px rgba(93,13,24,0.10)'; }}
+              onBlur={e => { e.target.style.borderColor='rgba(93,13,24,0.11)'; e.target.style.boxShadow='none'; }}
+            />
+          </Field>
+
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
+            <Field label="Phase">
+              <select
+                value={form.phase}
+                onChange={e => set('phase', e.target.value)}
+                style={{
+                  width:'100%', padding:'10px 13px',
+                  borderRadius:10, border:'1.5px solid rgba(93,13,24,0.11)',
+                  background:'#FFFFFF', color: form.phase ? '#0E0204' : '#B8969A',
+                  fontSize:13, outline:'none', cursor:'pointer',
+                  fontFamily:'inherit', appearance:'none', WebkitAppearance:'none',
+                  backgroundImage:`url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23B89498' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                  backgroundRepeat:'no-repeat', backgroundPosition:'right 12px center',
+                  paddingRight:36,
+                  transition:'border-color 0.15s, box-shadow 0.15s',
+                }}
+                onFocus={e => { e.target.style.borderColor='#5D0D18'; e.target.style.boxShadow='0 0 0 3px rgba(93,13,24,0.10)'; }}
+                onBlur={e => { e.target.style.borderColor='rgba(93,13,24,0.11)'; e.target.style.boxShadow='none'; }}
               >
-                {PHASES.map(p => <option key={p} value={p}>{p}</option>)}
+                <option value="">Select phase</option>
+                {(PHASES||['Discovery','Build','Launch','Operations']).map(p => <option key={p} value={p}>{p}</option>)}
               </select>
-            </div>
-            <div>
-              <label style={lbl}>Assign to</label>
-              <select value={form.assignee} onChange={e => set('assignee', e.target.value)} style={{ ...inp(false), appearance:'none' }}
-                onFocus={e => e.target.style.borderColor='var(--sage-hi)'}
-                onBlur={e => e.target.style.borderColor='var(--border-md)'}
+            </Field>
+
+            <Field label="Assignee">
+              <select
+                value={form.assignee}
+                onChange={e => set('assignee', e.target.value)}
+                style={{
+                  width:'100%', padding:'10px 13px',
+                  borderRadius:10, border:'1.5px solid rgba(93,13,24,0.11)',
+                  background:'#FFFFFF', color: form.assignee ? '#0E0204' : '#B8969A',
+                  fontSize:13, outline:'none', cursor:'pointer',
+                  fontFamily:'inherit', appearance:'none', WebkitAppearance:'none',
+                  backgroundImage:`url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23B89498' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                  backgroundRepeat:'no-repeat', backgroundPosition:'right 12px center',
+                  paddingRight:36,
+                  transition:'border-color 0.15s, box-shadow 0.15s',
+                }}
+                onFocus={e => { e.target.style.borderColor='#5D0D18'; e.target.style.boxShadow='0 0 0 3px rgba(93,13,24,0.10)'; }}
+                onBlur={e => { e.target.style.borderColor='rgba(93,13,24,0.11)'; e.target.style.boxShadow='none'; }}
               >
+                <option value="">Unassigned</option>
                 {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
-            </div>
+            </Field>
           </div>
 
           {/* Priority */}
-          <div>
-            <label style={lbl}>Priority</label>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:7 }}>
-              {PRIORITIES.map(p => (
-                <button key={p.id} type="button" onClick={() => set('priority', p.id)} style={{
-                  padding:'8px 6px', borderRadius:'var(--r)',
-                  border: form.priority === p.id ? `1px solid ${PC[p.id]}60` : '1px solid var(--border)',
-                  background: form.priority === p.id ? `${PC[p.id]}15` : 'var(--surface-0)',
-                  cursor:'pointer', fontSize:12, fontWeight: form.priority === p.id ? 700 : 400,
-                  color: form.priority === p.id ? PC[p.id] : 'var(--t3)',
-                  transition:'all 0.12s', display:'flex', alignItems:'center', justifyContent:'center', gap:5,
-                }}>
-                  <span style={{ width:5, height:5, borderRadius:'50%', background: PC[p.id] }}/>
-                  {p.label}
-                </button>
-              ))}
+          <Field label="Priority">
+            <div style={{ display:'flex', gap:6 }}>
+              {['critical','high','medium','low'].map(p => {
+                const active = form.priority === p
+                const c = PRIO_COLORS[p]
+                return (
+                  <button
+                    key={p}
+                    onClick={() => set('priority', p)}
+                    style={{
+                      flex:1, padding:'8px 6px',
+                      borderRadius:8,
+                      border:`1.5px solid ${active ? c : 'rgba(93,13,24,0.11)'}`,
+                      background: active ? PRIO_BG[p] : 'transparent',
+                      color: active ? c : '#7A5558',
+                      fontSize:11, fontWeight:700,
+                      cursor:'pointer', transition:'all 0.15s',
+                      fontFamily:'inherit', textTransform:'capitalize',
+                      display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+                      boxShadow: active ? `0 0 0 3px ${c}18` : 'none',
+                    }}
+                  >
+                    <span style={{ width:8, height:8, borderRadius:'50%', background:c }}/>
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                  </button>
+                )
+              })}
             </div>
-          </div>
+          </Field>
 
           {/* Status */}
-          <div>
-            <label style={lbl}>Status</label>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:7 }}>
-              {COLS.map(c => (
-                <button key={c.id} type="button" onClick={() => set('status', c.id)} style={{
-                  padding:'8px 6px', borderRadius:'var(--r)',
-                  border: form.status === c.id ? `1px solid ${c.color}50` : '1px solid var(--border)',
-                  background: form.status === c.id ? `${c.color}15` : 'var(--surface-0)',
-                  cursor:'pointer', fontSize:12, fontWeight: form.status === c.id ? 700 : 400,
-                  color: form.status === c.id ? c.color : 'var(--t3)',
-                  transition:'all 0.12s', display:'flex', alignItems:'center', justifyContent:'center', gap:5,
-                }}>
-                  <span style={{ width:5, height:5, borderRadius:'50%', background: c.color }}/>
-                  {c.label}
-                </button>
-              ))}
+          <Field label="Status">
+            <div style={{ display:'flex', gap:6 }}>
+              {Object.entries(STAT_LABELS).map(([id, label]) => {
+                const active = form.status === id
+                const c = STAT_COLORS[id]
+                return (
+                  <button
+                    key={id}
+                    onClick={() => set('status', id)}
+                    style={{
+                      flex:1, padding:'8px 6px',
+                      borderRadius:8,
+                      border:`1.5px solid ${active ? c : 'rgba(93,13,24,0.11)'}`,
+                      background: active ? STAT_BG[id] : 'transparent',
+                      color: active ? c : '#7A5558',
+                      fontSize:11, fontWeight:700,
+                      cursor:'pointer', transition:'all 0.15s',
+                      fontFamily:'inherit', textAlign:'center',
+                      boxShadow: active ? `0 0 0 3px ${c}18` : 'none',
+                    }}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
             </div>
-          </div>
+          </Field>
 
-          {/* Due date */}
-          <div>
-            <label style={lbl}>Due date</label>
-            <input type="date" value={form.due} onChange={e => set('due', e.target.value)} style={{ ...inp(false), colorScheme:'dark' }}
-              onFocus={e => e.target.style.borderColor='var(--sage-hi)'}
-              onBlur={e => e.target.style.borderColor='var(--border-md)'}
+          <Field label="Due Date">
+            <Input
+              type="date"
+              value={form.due}
+              onChange={e => set('due', e.target.value)}
             />
-          </div>
-        </form>
+          </Field>
+
+        </div>
 
         {/* Footer */}
-        <div style={{ padding:'12px 22px 22px', borderTop:'1px solid var(--border)', display:'flex', gap:8, alignItems:'center' }}>
-          {isEdit && onDelete && !confirmDel && (
-            <button type="button" onClick={() => setConfirmDel(true)} style={{
-              padding:'8px 14px', background:'none', border:'1px solid var(--border-md)',
-              borderRadius:'var(--r)', fontSize:13, fontWeight:500, color:'var(--t4)', cursor:'pointer', transition:'all 0.13s',
+        <div style={{
+          display:'flex', alignItems:'center', gap:8,
+          padding:'14px 22px 22px',
+          borderTop:'1px solid rgba(93,13,24,0.07)',
+          flexShrink:0, marginTop:4,
+        }}>
+          {/* Council button */}
+          <button
+            onClick={openCouncil}
+            title="Pressure-test this task with Claude Council"
+            style={{
+              display:'flex', alignItems:'center', gap:6,
+              padding:'9px 13px', borderRadius:10,
+              border:'1.5px solid rgba(159,178,172,0.40)',
+              background:'rgba(159,178,172,0.08)',
+              color:'#4A7A74', fontSize:12, fontWeight:600,
+              cursor:'pointer', transition:'all 0.15s',
+              fontFamily:'inherit', whiteSpace:'nowrap', flexShrink:0,
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor='var(--p-critical)'; e.currentTarget.style.color='var(--p-critical)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border-md)'; e.currentTarget.style.color='var(--t4)'; }}
-            >Delete</button>
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(159,178,172,0.16)'; e.currentTarget.style.borderColor='rgba(159,178,172,0.60)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background='rgba(159,178,172,0.08)'; e.currentTarget.style.borderColor='rgba(159,178,172,0.40)'; }}
+          >
+            <IcoCouncil/> Ask Council
+          </button>
+
+          <div style={{ flex:1 }}/>
+
+          {/* Delete / confirm */}
+          {task && !confirmDelete && (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              style={{
+                padding:'9px 14px', borderRadius:10,
+                border:'1.5px solid transparent', background:'transparent',
+                color:'#DC2626', fontSize:13, fontWeight:600,
+                cursor:'pointer', transition:'all 0.15s', fontFamily:'inherit',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background='#FEF2F2'; e.currentTarget.style.borderColor='#FECACA'; }}
+              onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.borderColor='transparent'; }}
+            >
+              Delete
+            </button>
+          )}
+          {task && confirmDelete && (
+            <div style={{ display:'flex', alignItems:'center', gap:6, animation:'fadeIn 0.15s ease' }}>
+              <span style={{ fontSize:12, color:'#7A5558' }}>Delete this task?</span>
+              <button
+                onClick={() => onDelete(task.id)}
+                style={{ padding:'7px 12px', borderRadius:8, background:'#DC2626', color:'#fff', fontSize:12, fontWeight:700, border:'none', cursor:'pointer', fontFamily:'inherit' }}
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                style={{ padding:'7px 12px', borderRadius:8, background:'rgba(93,13,24,0.07)', color:'#3A1016', fontSize:12, fontWeight:600, border:'none', cursor:'pointer', fontFamily:'inherit' }}
+              >
+                No
+              </button>
+            </div>
           )}
 
-          {confirmDel && (
-            <>
-              <span style={{ fontSize:12.5, color:'var(--p-critical)', fontWeight:500, flex:1 }}>Delete this task?</span>
-              <button type="button" onClick={() => setConfirmDel(false)} style={{ padding:'8px 14px', background:'none', border:'1px solid var(--border-md)', borderRadius:'var(--r)', fontSize:13, color:'var(--t3)', cursor:'pointer' }}>No</button>
-              <button type="button" onClick={() => onDelete(task.id)} style={{ padding:'8px 16px', background:'var(--p-critical)', border:'none', borderRadius:'var(--r)', fontSize:13, fontWeight:700, color:'#fff', cursor:'pointer' }}>Yes, delete</button>
-            </>
-          )}
+          <button
+            onClick={onClose}
+            style={{
+              padding:'9px 16px', borderRadius:10,
+              border:'1.5px solid rgba(93,13,24,0.11)', background:'transparent',
+              color:'#7A5558', fontSize:13, fontWeight:600,
+              cursor:'pointer', transition:'all 0.15s', fontFamily:'inherit',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(93,13,24,0.20)'; e.currentTarget.style.color='#3A1016'; e.currentTarget.style.background='rgba(93,13,24,0.04)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(93,13,24,0.11)'; e.currentTarget.style.color='#7A5558'; e.currentTarget.style.background='transparent'; }}
+          >
+            Cancel
+          </button>
 
-          {!confirmDel && (
-            <>
-              <button type="button" onClick={onClose} style={{
-                marginLeft: isEdit ? 0 : 'auto',
-                padding:'8px 18px', background:'none', border:'1px solid var(--border-md)',
-                borderRadius:'var(--r)', fontSize:13, fontWeight:500, color:'var(--t3)', cursor:'pointer', transition:'all 0.13s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor='var(--border-lg)'; e.currentTarget.style.color='var(--t2)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border-md)'; e.currentTarget.style.color='var(--t3)'; }}
-              >Cancel</button>
-              <button type="submit" onClick={submit} style={{
-                marginLeft: isEdit ? 'auto' : 0,
-                padding:'8px 22px', background:'var(--btn)', border:'none',
-                borderRadius:'var(--r)', fontSize:13, fontWeight:700, color:'var(--btn-text)',
-                cursor:'pointer', boxShadow:'0 1px 4px rgba(0,0,0,0.4)', transition:'background 0.13s',
-                letterSpacing:'-0.2px',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background='var(--btn-hover)'}
-              onMouseLeave={e => e.currentTarget.style.background='var(--btn)'}
-              >{isEdit ? 'Save changes' : 'Create task'}</button>
-            </>
-          )}
+          <button
+            onClick={handleSave}
+            style={{
+              padding:'9px 22px', borderRadius:10,
+              background:'#5D0D18', color:'#FFF9EB',
+              fontSize:13, fontWeight:600, letterSpacing:'-0.01em',
+              border:'none', cursor:'pointer',
+              boxShadow:'0 2px 10px rgba(93,13,24,0.30)',
+              transition:'background 0.15s, box-shadow 0.15s, transform 0.15s',
+              fontFamily:'inherit',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background='#7A1020'; e.currentTarget.style.boxShadow='0 4px 16px rgba(93,13,24,0.40)'; e.currentTarget.style.transform='translateY(-1px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background='#5D0D18'; e.currentTarget.style.boxShadow='0 2px 10px rgba(93,13,24,0.30)'; e.currentTarget.style.transform=''; }}
+          >
+            {task ? 'Save Changes' : 'Create Task'}
+          </button>
         </div>
       </div>
     </div>

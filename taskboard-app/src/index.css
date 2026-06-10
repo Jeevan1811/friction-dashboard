@@ -1,90 +1,94 @@
-/* Friction Task Board — Outfit font, exact palette */
+/* ── Friction Startup OS — Design System v3 (Council Verdict) ── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* ── EXACT palette, zero modifications ── */
-  --cream: #FFF9EB;
-  --sage:  #9FB2AC;
-  --blood: #5D0D18;
+  /* ── Brand ─────────────────────────────── */
+  --blood:   #5D0D18;
+  --blood-2: #7A1020;
+  --blood-3: #3D0810;
+  --sage:    #9FB2AC;
+  --sage-2:  #7A9B94;
+  --cream:   #FFF9EB;
 
-  /* ── Layout ── */
-  --bg:         #FFF9EB;   /* Exact cream — main surface */
-  --card:       #FFFFFF;   /* White cards on cream */
-  --card-hover: #FDFCF7;
+  /* ── Surfaces (3 levels) ───────────────── */
+  --bg:   #F0E8D3;      /* page parchment */
+  --sf-1: #FEFCF6;      /* card surface */
+  --sf-2: #EDE4CC;      /* recessed / inputs */
+  --sf-3: #FFFFFF;      /* elevated / topbar */
 
-  /* ── Sidebar uses exact Bloodstone ── */
-  --sb:         #5D0D18;
-  --sb-deep:    #4A0A13;
-  --sb-text:    rgba(255,249,235,0.55);
-  --sb-hi:      #FFF9EB;
-  --sb-border:  rgba(255,249,235,0.09);
-  --sb-hover:   rgba(255,249,235,0.07);
-  --sb-active:  rgba(255,249,235,0.13);
+  /* ── Sidebar (warm near-black) ─────────── */
+  --nav-bg: #0E0908;
+  --nav-2:  #160D0B;
+  --nav-3:  #1F1310;
 
-  /* ── Text — warm neutrals ── */
-  --t1: #1A0507;
-  --t2: #5C4245;
-  --t3: #9B7D80;
-  --t4: #C5AAAC;
+  /* ── Text ──────────────────────────────── */
+  --t1: #0E0204;
+  --t2: #2E1318;
+  --t3: #6B4448;
+  --t4: #A88285;
+  --t5: #D4BCBE;
 
-  /* ── Borders ── */
-  --border:    rgba(93,13,24,0.07);
-  --border-md: rgba(93,13,24,0.13);
-  --border-lg: rgba(93,13,24,0.22);
+  /* ── Status ────────────────────────────── */
+  --c-todo:    #64748B;
+  --c-inprog:  #D97706;
+  --c-blocked: #DC2626;
+  --c-done:    #16A34A;
 
-  /* ── Sage accents ── */
-  --sage-bg:  rgba(159,178,172,0.13);
-  --sage-bdr: rgba(159,178,172,0.32);
+  /* ── Priority ──────────────────────────── */
+  --p-critical: #DC2626;
+  --p-high:     #EA580C;
+  --p-medium:   #D97706;
+  --p-low:      #16A34A;
 
-  /* ── Button — Bloodstone on white ── */
-  --btn:      #5D0D18;
-  --btn-hi:   #7A1020;
-  --btn-text: #FFF9EB;
+  /* ── Shadows ───────────────────────────── */
+  --sh-xs: 0 1px 2px rgba(14,2,4,0.04);
+  --sh-sm: 0 1px 4px rgba(14,2,4,0.06), 0 0 0 1px rgba(14,2,4,0.04);
+  --sh-md: 0 4px 16px rgba(14,2,4,0.08), 0 0 0 1px rgba(14,2,4,0.05);
+  --sh-lg: 0 12px 40px rgba(14,2,4,0.12), 0 0 0 1px rgba(14,2,4,0.06);
+  --sh-xl: 0 24px 64px rgba(14,2,4,0.16), 0 0 0 1px rgba(14,2,4,0.08);
 
-  /* ── Status ── */
-  --todo:    #9FB2AC;
-  --inprog:  #D97706;
-  --blocked: #DC2626;
-  --done:    #16A34A;
+  /* ── Radius ────────────────────────────── */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
 
-  /* ── Priority ── */
-  --p-crit: #DC2626;
-  --p-high: #EA580C;
-  --p-med:  #D97706;
-  --p-low:  #16A34A;
-
-  /* ── Shadows — bloodstone-tinted, not black ── */
-  --sh-xs: 0 1px 3px rgba(93,13,24,0.07);
-  --sh-sm: 0 2px 8px rgba(93,13,24,0.08);
-  --sh-md: 0 6px 20px rgba(93,13,24,0.10);
-  --sh-lg: 0 12px 40px rgba(93,13,24,0.13);
-  --sh-xl: 0 24px 72px rgba(93,13,24,0.18);
-
-  /* ── Radii ── */
-  --r:   8px;
-  --r-m: 12px;
-  --r-l: 16px;
-
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
+  /* ── Motion ────────────────────────────── */
+  --ease-out:  cubic-bezier(0.22,1,0.36,1);
+  --ease-snap: cubic-bezier(0.18,0.67,0.6,1.22);
 }
 
-html, body, #root { height: 100%; overflow: hidden; background: var(--bg); color: var(--t1); }
+html { font-size: 16px; }
 
-::-webkit-scrollbar { width: 4px; height: 4px; }
+body {
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--t1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+button { font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+
+/* ── Scrollbar ──────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--border-lg); }
+::-webkit-scrollbar-thumb { background: rgba(14,2,4,0.14); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(14,2,4,0.22); }
 
-button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; border-radius: var(--r); }
-
-.clamp2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
-
-@keyframes fadein  { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
-@keyframes slideup { from { opacity:0; transform:translateY(28px) scale(0.97); } to { opacity:1; transform:none; } }
-@keyframes bgIn    { from { opacity:0; } to { opacity:1; } }
-@keyframes blink   { 0%,100%{opacity:1;} 50%{opacity:.25;} }
+/* ── Keyframes ──────────────────────────── */
+@keyframes fadeIn    { from{opacity:0}                                        to{opacity:1} }
+@keyframes fadeUp    { from{opacity:0;transform:translateY(6px)}              to{opacity:1;transform:translateY(0)} }
+@keyframes slideUp   { from{opacity:0;transform:translateY(12px)}             to{opacity:1;transform:translateY(0)} }
+@keyframes slideDown { from{opacity:0;transform:translateY(-8px)}             to{opacity:1;transform:translateY(0)} }
+@keyframes scaleIn   { from{opacity:0;transform:scale(0.96)}                  to{opacity:1;transform:scale(1)} }
+@keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes pulse     { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.25);opacity:0.7} }
+@keyframes shimmer   { from{background-position:200% 0} to{background-position:-200% 0} }
+@keyframes toastIn   { from{opacity:0;transform:translateX(16px)}             to{opacity:1;transform:translateX(0)} }
+@keyframes toastOut  { from{opacity:1;transform:translateX(0)}                to{opacity:0;transform:translateX(16px)} }
+@keyframes cmdIn     { from{opacity:0;transform:translateY(-6px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
