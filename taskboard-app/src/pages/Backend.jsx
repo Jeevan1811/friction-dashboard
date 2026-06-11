@@ -32,11 +32,11 @@ const TABS = [
 ]
 
 const inputStyle = {
-  width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(14,2,4,0.12)',
-  background: '#FEFCF6', fontSize: 13, color: '#0E0204', outline: 'none',
+  width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.10)',
+  background: '#12151f', fontSize: 13, color: '#f2f4f8', outline: 'none',
   fontFamily: 'inherit', boxSizing: 'border-box',
 }
-const labelStyle = { fontSize: 10.5, fontWeight: 600, color: '#6B4448', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 4 }
+const labelStyle = { fontSize: 10.5, fontWeight: 600, color: '#8b93a7', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 4 }
 
 /* ── Company Tab ── */
 function CompanyTab() {
@@ -54,7 +54,7 @@ function CompanyTab() {
 
   return (
     <div style={{ maxWidth: 520 }}>
-      <p style={{ fontSize: 13, color: '#A88285', marginTop: 0, marginBottom: 20 }}>
+      <p style={{ fontSize: 13, color: '#555e72', marginTop: 0, marginBottom: 20 }}>
         Company info used in invoices, letters, and document headers.
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
@@ -74,7 +74,7 @@ function CompanyTab() {
         ))}
       </div>
       <button onClick={handleSave} style={{
-        background: saved ? '#16A34A' : '#5D0D18', color: '#FFF9EB', border: 'none',
+        background: saved ? '#34d399' : '#6366f1', color: '#ffffff', border: 'none',
         borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
         transition: 'background 0.2s',
       }}>{saved ? '✓ Saved' : 'Save Company Info'}</button>
@@ -101,24 +101,24 @@ function MembersTab() {
 
   return (
     <div style={{ maxWidth: 560 }}>
-      <p style={{ fontSize: 13, color: '#A88285', marginTop: 0, marginBottom: 20 }}>
+      <p style={{ fontSize: 13, color: '#555e72', marginTop: 0, marginBottom: 20 }}>
         Team members used for task assignment and document ownership.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
         {members.map((m, idx) => (
           <div key={m.id} style={{
-            background: 'rgba(14,2,4,0.03)', borderRadius: 10, padding: '14px 16px',
-            border: '1px solid rgba(14,2,4,0.07)',
+            background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: '14px 16px',
+            border: '1px solid rgba(255,255,255,0.06)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <div style={{
                 width: 32, height: 32, borderRadius: '50%',
-                background: m.id === 'J' ? '#8B1525' : '#3D8C74',
+                background: m.id === 'J' ? '#6366f1' : '#a855f7',
                 color: '#fff', fontWeight: 700, fontSize: 13,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>{m.id}</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#0E0204' }}>{m.name}</div>
-              <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#A88285', cursor: 'pointer' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#f2f4f8' }}>{m.name}</div>
+              <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#555e72', cursor: 'pointer' }}>
                 <input type="checkbox" checked={m.active} onChange={e => update(idx, 'active', e.target.checked)} />
                 Active
               </label>
@@ -139,7 +139,7 @@ function MembersTab() {
         ))}
       </div>
       <button onClick={handleSave} style={{
-        background: saved ? '#16A34A' : '#5D0D18', color: '#FFF9EB', border: 'none',
+        background: saved ? '#34d399' : '#6366f1', color: '#ffffff', border: 'none',
         borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
         transition: 'background 0.2s',
       }}>{saved ? '✓ Saved' : 'Save Members'}</button>
@@ -169,11 +169,11 @@ function KeywordsTab() {
     setTimeout(() => setSaved(false), 2000)
   }
 
-  const MEMBER_COLORS = { J: '#8B1525', B: '#3D8C74' }
+  const MEMBER_COLORS = { J: '#6366f1', B: '#a855f7' }
 
   return (
     <div style={{ maxWidth: 600 }}>
-      <p style={{ fontSize: 13, color: '#A88285', marginTop: 0, marginBottom: 16 }}>
+      <p style={{ fontSize: 13, color: '#555e72', marginTop: 0, marginBottom: 16 }}>
         When a task title contains a keyword, it auto-assigns to the mapped member.
       </p>
 
@@ -195,7 +195,7 @@ function KeywordsTab() {
           <input style={inputStyle} placeholder="Why this person?" value={newKw.reason} onChange={e => setNewKw(k => ({ ...k, reason: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addKeyword()} />
         </div>
         <button onClick={addKeyword} style={{
-          background: '#5D0D18', color: '#FFF9EB', border: 'none', borderRadius: 8,
+          background: '#6366f1', color: '#ffffff', border: 'none', borderRadius: 8,
           padding: '8px', fontSize: 18, cursor: 'pointer', height: 38,
         }}>+</button>
       </div>
@@ -205,23 +205,23 @@ function KeywordsTab() {
         {keywords.map((kw, idx) => (
           <div key={idx} style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', borderRadius: 8,
-            background: 'rgba(14,2,4,0.02)', border: '1px solid rgba(14,2,4,0.05)',
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)',
           }}>
-            <code style={{ fontSize: 12, fontWeight: 600, color: '#0E0204', background: 'rgba(14,2,4,0.06)', padding: '2px 8px', borderRadius: 4, minWidth: 80 }}>{kw.keyword}</code>
-            <span style={{ fontSize: 12, fontWeight: 700, color: MEMBER_COLORS[kw.member] || '#A88285', width: 60 }}>{kw.member === 'J' ? 'Jeevan' : 'Barat'}</span>
-            <span style={{ fontSize: 11, color: '#A88285', flex: 1 }}>{kw.reason}</span>
+            <code style={{ fontSize: 12, fontWeight: 600, color: '#f2f4f8', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 4, minWidth: 80 }}>{kw.keyword}</code>
+            <span style={{ fontSize: 12, fontWeight: 700, color: MEMBER_COLORS[kw.member] || '#555e72', width: 60 }}>{kw.member === 'J' ? 'Jeevan' : 'Barat'}</span>
+            <span style={{ fontSize: 11, color: '#555e72', flex: 1 }}>{kw.reason}</span>
             <button onClick={() => removeKeyword(idx)} style={{
-              border: 'none', background: 'transparent', color: '#C4AEAE', cursor: 'pointer', fontSize: 15, padding: '0 2px',
+              border: 'none', background: 'transparent', color: '#D8D0C8', cursor: 'pointer', fontSize: 15, padding: '0 2px',
             }}
-              onMouseEnter={e => e.currentTarget.style.color = '#DC2626'}
-              onMouseLeave={e => e.currentTarget.style.color = '#C4AEAE'}
+              onMouseEnter={e => e.currentTarget.style.color = '#f43f5e'}
+              onMouseLeave={e => e.currentTarget.style.color = '#D8D0C8'}
             >×</button>
           </div>
         ))}
       </div>
 
       <button onClick={handleSave} style={{
-        background: saved ? '#16A34A' : '#5D0D18', color: '#FFF9EB', border: 'none',
+        background: saved ? '#34d399' : '#6366f1', color: '#ffffff', border: 'none',
         borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
         transition: 'background 0.2s',
       }}>{saved ? '✓ Saved' : 'Save Keywords'}</button>
@@ -247,13 +247,13 @@ function RolesTab() {
 
   return (
     <div style={{ maxWidth: 560 }}>
-      <p style={{ fontSize: 13, color: '#A88285', marginTop: 0, marginBottom: 20 }}>
+      <p style={{ fontSize: 13, color: '#555e72', marginTop: 0, marginBottom: 20 }}>
         Define what each person owns. Used to improve auto-assignment accuracy.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
         {roles.map((r, idx) => (
-          <div key={r.member} style={{ background: 'rgba(14,2,4,0.03)', borderRadius: 10, padding: '14px 16px', border: '1px solid rgba(14,2,4,0.07)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#0E0204', marginBottom: 8 }}>{r.name}</div>
+          <div key={r.member} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: '14px 16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#f2f4f8', marginBottom: 8 }}>{r.name}</div>
             <label style={labelStyle}>Responsibilities (comma-separated keywords)</label>
             <textarea
               value={r.responsibilities}
@@ -265,7 +265,7 @@ function RolesTab() {
         ))}
       </div>
       <button onClick={handleSave} style={{
-        background: saved ? '#16A34A' : '#5D0D18', color: '#FFF9EB', border: 'none',
+        background: saved ? '#34d399' : '#6366f1', color: '#ffffff', border: 'none',
         borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
         transition: 'background 0.2s',
       }}>{saved ? '✓ Saved' : 'Save Roles'}</button>
@@ -295,7 +295,7 @@ function TemplatesTab() {
 
   return (
     <div style={{ maxWidth: 560 }}>
-      <p style={{ fontSize: 13, color: '#A88285', marginTop: 0, marginBottom: 20 }}>
+      <p style={{ fontSize: 13, color: '#555e72', marginTop: 0, marginBottom: 20 }}>
         Reusable text templates for invoices, follow-ups, and proposals.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
@@ -315,7 +315,7 @@ function TemplatesTab() {
         ))}
       </div>
       <button onClick={handleSave} style={{
-        background: saved ? '#16A34A' : '#5D0D18', color: '#FFF9EB', border: 'none',
+        background: saved ? '#34d399' : '#6366f1', color: '#ffffff', border: 'none',
         borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
         transition: 'background 0.2s',
       }}>{saved ? '✓ Saved' : 'Save Templates'}</button>
@@ -336,22 +336,22 @@ export default function Backend() {
   }
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg, #F0E8D3)', overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg, #0a0c12)', overflow: 'hidden' }}>
 
       {/* Header */}
       <div style={{ padding: '24px 28px 0', flexShrink: 0 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0E0204', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Settings</h1>
-        <p style={{ fontSize: 13, color: '#A88285', margin: '0 0 20px' }}>Configure your workspace, team, and automation rules</p>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#f2f4f8', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Settings</h1>
+        <p style={{ fontSize: 13, color: '#555e72', margin: '0 0 20px' }}>Configure your workspace, team, and automation rules</p>
 
         {/* Tab bar */}
-        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid rgba(14,2,4,0.10)', marginBottom: 0 }}>
+        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 0 }}>
           {TABS.map(tab => (
             <button key={tab.id} onClick={() => setActive(tab.id)} style={{
               border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit',
               fontSize: 13, fontWeight: active === tab.id ? 600 : 400,
-              color: active === tab.id ? '#0E0204' : '#A88285',
+              color: active === tab.id ? '#f2f4f8' : '#555e72',
               padding: '8px 14px',
-              borderBottom: `2px solid ${active === tab.id ? '#5D0D18' : 'transparent'}`,
+              borderBottom: `2px solid ${active === tab.id ? '#6366f1' : 'transparent'}`,
               marginBottom: -1,
               transition: 'color 0.12s',
             }}>{tab.label}</button>

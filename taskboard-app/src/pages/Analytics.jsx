@@ -16,10 +16,10 @@ function calcAI(newVal, oldVal)  { return Math.min(100, Math.round((newVal / Mat
 function calcSHS(re, ds, oe, ai) { return Math.round(re*0.30 + ds*0.25 + oe*0.25 + ai*0.20) }
 
 function shsZone(score) {
-  if (score >= 86) return { label:'Scaling',     color:'#16A34A', bg:'rgba(22,163,74,0.10)' }
-  if (score >= 66) return { label:'Growing',     color:'#2563EB', bg:'rgba(37,99,235,0.10)' }
-  if (score >= 41) return { label:'Stabilising', color:'#D97706', bg:'rgba(217,119,6,0.10)' }
-  return               { label:'Critical',     color:'#DC2626', bg:'rgba(220,38,38,0.10)' }
+  if (score >= 86) return { label:'Scaling',     color:'#34d399', bg:'rgba(22,163,74,0.10)' }
+  if (score >= 66) return { label:'Growing',     color:'#38bdf8', bg:'rgba(37,99,235,0.10)' }
+  if (score >= 41) return { label:'Stabilising', color:'#f59e0b', bg:'rgba(217,119,6,0.10)' }
+  return               { label:'Critical',     color:'#f43f5e', bg:'rgba(220,38,38,0.10)' }
 }
 
 const ZONES = [
@@ -44,11 +44,11 @@ const BASE_OPTS = {
   responsive: true, maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
-    tooltip: { backgroundColor: '#0E0908', titleColor: '#FFF9EB', bodyColor: '#A88285', padding: 10, cornerRadius: 8 },
+    tooltip: { backgroundColor: '#0E0908', titleColor: '#ffffff', bodyColor: '#555e72', padding: 10, cornerRadius: 8 },
   },
   scales: {
-    x: { grid: { color: 'rgba(14,2,4,0.06)' }, ticks: { color: '#A88285', font: { size: 10 } } },
-    y: { min: 0, max: 100, grid: { color: 'rgba(14,2,4,0.06)' }, ticks: { color: '#A88285', font: { size: 10 } } },
+    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#555e72', font: { size: 10 } } },
+    y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#555e72', font: { size: 10 } } },
   },
 }
 
@@ -63,17 +63,17 @@ function mkDataset(data, color, label) {
 function KpiInput({ label, value, onChange }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <label style={{ fontSize: 10.5, fontWeight: 600, color: '#6B4448', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</label>
+      <label style={{ fontSize: 10.5, fontWeight: 600, color: '#8b93a7', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</label>
       <input type="number" value={value} onChange={e => onChange(e.target.value)} placeholder="0"
-        style={{ width: '100%', padding: '7px 10px', borderRadius: 7, border: '1px solid rgba(14,2,4,0.12)', background: '#FEFCF6', fontSize: 13, color: '#0E0204', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+        style={{ width: '100%', padding: '7px 10px', borderRadius: 7, border: '1px solid rgba(255,255,255,0.10)', background: '#12151f', fontSize: 13, color: '#f2f4f8', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
     </div>
   )
 }
 
 function ScoreCard({ label, value, color }) {
   return (
-    <div style={{ background: '#FEFCF6', borderRadius: 10, padding: '14px 16px', border: '1px solid rgba(14,2,4,0.07)', borderTop: `2px solid ${color}` }}>
-      <div style={{ fontSize: 10.5, fontWeight: 600, color: '#A88285', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>{label}</div>
+    <div style={{ background: '#12151f', borderRadius: 10, padding: '14px 16px', border: '1px solid rgba(255,255,255,0.06)', borderTop: `2px solid ${color}` }}>
+      <div style={{ fontSize: 10.5, fontWeight: 600, color: '#555e72', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>{label}</div>
       <div style={{ fontSize: 28, fontWeight: 300, color, letterSpacing: '-0.03em', lineHeight: 1 }}>{value ?? '—'}</div>
     </div>
   )
@@ -82,11 +82,11 @@ function ScoreCard({ label, value, color }) {
 function ChartCard({ title, datasets, labels, height = 160 }) {
   const empty = !labels || labels.length === 0
   return (
-    <div style={{ background: '#FEFCF6', borderRadius: 10, padding: '14px 16px', border: '1px solid rgba(14,2,4,0.07)' }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#6B4448', marginBottom: 12 }}>{title}</div>
+    <div style={{ background: '#12151f', borderRadius: 10, padding: '14px 16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: '#8b93a7', marginBottom: 12 }}>{title}</div>
       <div style={{ height }}>
         {empty ? (
-          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#C4AEAE', fontSize: 12 }}>
+          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D8D0C8', fontSize: 12 }}>
             No data yet — log a KPI period below
           </div>
         ) : (
@@ -145,31 +145,42 @@ export default function Analytics() {
   const labels = kpiLog.map(e => e.date)
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg, #F0E8D3)', padding: '24px 28px' }}>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0E0204', letterSpacing: '-0.03em', margin: 0 }}>Analytics</h1>
-        <p style={{ fontSize: 13, color: '#A88285', margin: '4px 0 0' }}>
-          {loading ? 'Loading from Supabase…' : `Startup Health Score · ${kpiLog.length} periods logged`}
-        </p>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--bg, #0a0c12)' }}>
+      {/* Topbar */}
+      <div style={{
+        height: 58, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12,
+        padding: '0 26px', background: 'rgba(8,10,16,0.95)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)',
+      }}>
+        <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em', color: '#f2f4f8' }}>Analytics</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: '#555e72', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 99, padding: '3px 10px' }}>
+          {loading ? 'Loading…' : `${kpiLog.length} period${kpiLog.length !== 1 ? 's' : ''} logged`}
+        </div>
+        {last && zone && (
+          <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, fontWeight: 700, color: zone.color, background: zone.bg, borderRadius: 99, padding: '4px 12px', border: `1px solid ${zone.color}33` }}>
+            SHS {last.shs} · {zone.label}
+          </div>
+        )}
       </div>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 26px 36px' }}>
 
       {/* SHS Hero */}
-      <div style={{ background: '#FEFCF6', borderRadius: 12, padding: '20px 24px', border: '1px solid rgba(14,2,4,0.07)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
+      <div style={{ background: '#12151f', borderRadius: 12, padding: '20px 24px', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 90, height: 90, borderRadius: '50%', margin: '0 auto 10px', border: `4px solid ${zone?.color || 'rgba(14,2,4,0.12)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'border-color 0.4s' }}>
-            <span style={{ fontSize: 30, fontWeight: 300, color: zone?.color || '#A88285', letterSpacing: '-0.03em' }}>{last?.shs ?? '—'}</span>
+          <div style={{ width: 90, height: 90, borderRadius: '50%', margin: '0 auto 10px', border: `4px solid ${zone?.color || 'rgba(255,255,255,0.10)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'border-color 0.4s' }}>
+            <span style={{ fontSize: 30, fontWeight: 300, color: zone?.color || '#555e72', letterSpacing: '-0.03em' }}>{last?.shs ?? '—'}</span>
           </div>
           {zone && <span style={{ fontSize: 11, fontWeight: 600, color: zone.color, background: zone.bg, borderRadius: 99, padding: '3px 10px' }}>{zone.label}</span>}
-          <div style={{ fontSize: 10, color: '#A88285', marginTop: 6 }}>Startup Health Score</div>
+          <div style={{ fontSize: 10, color: '#555e72', marginTop: 6 }}>Startup Health Score</div>
         </div>
         <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 12 }}>
-          <ScoreCard label="Revenue Engine" value={last?.re}   color="#8B1525" />
-          <ScoreCard label="Decision Speed" value={last?.ds}   color="#2563EB" />
-          <ScoreCard label="Output Engine"  value={last?.oe}   color="#D97706" />
-          <ScoreCard label="Adaptability"   value={last?.ai}   color="#16A34A" />
-          <ScoreCard label="Jeevan"         value={last?.j}    color="#8B1525" />
-          <ScoreCard label="Barat"          value={last?.b}    color="#3D8C74" />
-          <ScoreCard label="Team Avg"       value={last?.team} color="#6B4448" />
+          <ScoreCard label="Revenue Engine" value={last?.re}   color="#6366f1" />
+          <ScoreCard label="Decision Speed" value={last?.ds}   color="#38bdf8" />
+          <ScoreCard label="Output Engine"  value={last?.oe}   color="#f59e0b" />
+          <ScoreCard label="Adaptability"   value={last?.ai}   color="#34d399" />
+          <ScoreCard label="Jeevan"         value={last?.j}    color="#6366f1" />
+          <ScoreCard label="Barat"          value={last?.b}    color="#a855f7" />
+          <ScoreCard label="Team Avg"       value={last?.team} color="#8b93a7" />
         </div>
       </div>
 
@@ -187,8 +198,8 @@ export default function Analytics() {
       </div>
 
       {/* Entry form */}
-      <div style={{ background: '#FEFCF6', borderRadius: 12, padding: '20px 24px', border: '1px solid rgba(14,2,4,0.07)', marginBottom: 20 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#0E0204', marginBottom: 16 }}>Log KPI Period</div>
+      <div style={{ background: '#12151f', borderRadius: 12, padding: '20px 24px', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 20 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#f2f4f8', marginBottom: 16 }}>Log KPI Period</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
           <KpiInput label="Revenue Actual (RM)" value={form.revActual} onChange={v => setField('revActual', v)} />
           <KpiInput label="Revenue Target (RM)" value={form.revTarget} onChange={v => setField('revTarget', v)} />
@@ -200,31 +211,31 @@ export default function Analytics() {
           <KpiInput label="Jeevan Score (0-100)" value={form.scoreJ} onChange={v => setField('scoreJ', v)} />
           <KpiInput label="Barat Score (0-100)" value={form.scoreB} onChange={v => setField('scoreB', v)} />
         </div>
-        <button onClick={addEntry} style={{ background: '#5D0D18', color: '#FFF9EB', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+        <button onClick={addEntry} style={{ background: '#6366f1', color: '#ffffff', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
           onMouseEnter={e => e.currentTarget.style.background='#7A1020'}
-          onMouseLeave={e => e.currentTarget.style.background='#5D0D18'}
+          onMouseLeave={e => e.currentTarget.style.background='#6366f1'}
         >Record Period</button>
       </div>
 
       {/* History */}
       {kpiLog.length > 0 && (
-        <div style={{ background: '#FEFCF6', borderRadius: 12, padding: '16px 20px', border: '1px solid rgba(14,2,4,0.07)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#0E0204', marginBottom: 12 }}>History</div>
+        <div style={{ background: '#12151f', borderRadius: 12, padding: '16px 20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#f2f4f8', marginBottom: 12 }}>History</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[...kpiLog].reverse().map(e => {
               const z = shsZone(e.shs)
               return (
-                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '8px 12px', borderRadius: 8, background: 'rgba(14,2,4,0.02)', border: '1px solid rgba(14,2,4,0.05)' }}>
-                  <span style={{ fontSize: 11, color: '#A88285', width: 70, flexShrink: 0 }}>{e.date}</span>
+                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <span style={{ fontSize: 11, color: '#555e72', width: 70, flexShrink: 0 }}>{e.date}</span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: z.color, width: 60 }}>SHS {e.shs}</span>
-                  <div style={{ display: 'flex', gap: 8, fontSize: 11, color: '#A88285', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: 8, fontSize: 11, color: '#555e72', flexWrap: 'wrap' }}>
                     <span>RE {e.re}</span><span>DS {e.ds}</span><span>OE {e.oe}</span><span>AI {e.ai}</span>
-                    <span style={{ color:'#8B1525' }}>J {e.j}</span>
-                    <span style={{ color:'#3D8C74' }}>B {e.b}</span>
+                    <span style={{ color:'#6366f1' }}>J {e.j}</span>
+                    <span style={{ color:'#a855f7' }}>B {e.b}</span>
                   </div>
-                  <button onClick={() => handleDelete(e.id)} style={{ marginLeft:'auto', border:'none', background:'transparent', color:'#C4AEAE', cursor:'pointer', fontSize:14 }}
-                    onMouseEnter={ev => ev.currentTarget.style.color='#DC2626'}
-                    onMouseLeave={ev => ev.currentTarget.style.color='#C4AEAE'}
+                  <button onClick={() => handleDelete(e.id)} style={{ marginLeft:'auto', border:'none', background:'transparent', color:'#D8D0C8', cursor:'pointer', fontSize:14 }}
+                    onMouseEnter={ev => ev.currentTarget.style.color='#f43f5e'}
+                    onMouseLeave={ev => ev.currentTarget.style.color='#D8D0C8'}
                   >×</button>
                 </div>
               )
@@ -232,6 +243,7 @@ export default function Analytics() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
